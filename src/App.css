@@ -203,7 +203,7 @@ header h1 {
     align-items: center; /* Center content horizontally */
     justify-content: center; /* Center content vertically */
     overflow: hidden; /* Prevent content from spilling outside the card */
-    padding: 10px; /* Add internal spacing */
+    padding: 0px; /* Add internal spacing */
   }
 
   .present {
