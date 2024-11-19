@@ -1,0 +1,198 @@
+body {
+  background: linear-gradient(to bottom, #FFEFBA, #FFFFFF);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.App {
+  text-align: center;
+}
+
+header {
+  background-color: #388E3C;
+  padding: 20px;
+  color: white;
+}
+
+header h1 {
+  font-family: 'Mountains of Christmas', cursive;
+  font-size: 36px;
+  margin: 0;
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  color: white;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Alternating colors for the cards */
+.card:nth-child(odd) {
+  background-color: #D32F2F; /* Red */
+}
+
+.card:nth-child(even) {
+  background-color: #388E3C; /* Green */
+}
+
+.card:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.view-link:hover {
+  background-color: gold;
+  color: #333;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+
+.card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.card a {
+  color: #FFD700;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+.view-link {
+  color: #fff;
+  background-color: #388E3C;
+  text-decoration: none;
+  padding: 10px 20px;
+  display: inline-block;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.view-link:hover {
+  background-color: #2E7D32;
+}
+
+/* Button inside odd (red) cards */
+.card:nth-child(odd) .view-link {
+  background-color: #D32F2F; /* Matches red card */
+  color: white;
+}
+
+.card:nth-child(odd) .view-link:hover {
+  background-color: #B71C1C; /* Darker red on hover */
+}
+
+/* Button inside even (green) cards */
+.card:nth-child(even) .view-link {
+  background-color: #388E3C; /* Matches green card */
+  color: white;
+}
+
+.card:nth-child(even) .view-link:hover {
+  background-color: #2E7D32; /* Darker green on hover */
+}
+
+.card img {
+  width: 200px; /* Set a fixed width */
+  height: 200px; /* Set a fixed height */
+  object-fit: cover; /* Ensures the image fills the space without distortion */
+  border-radius: 50%; /* Optional: Makes images circular */
+  margin-bottom: 10px;
+}
+
+/* Header styles */
+.header {
+  padding: 20px;
+  text-align: center;
+  background: #388E3C;
+  color: white;
+  position: relative;
+}
+
+/* Title styling */
+.header-title {
+  font-family: 'Mountains of Christmas', cursive;
+  font-size: 36px;
+  margin: 0;
+}
+
+/* Lights container */
+.lights {
+  display: flex;
+  justify-content: center; /* Center lights above header */
+  gap: 10px; /* Space between lights */
+  margin-bottom: 15px; /* Push lights closer to the header */
+}
+
+/* Individual light bulbs */
+.light {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+/* Light colors with animation delays */
+.light-0 {
+  background-color: red;
+  animation-delay: 0s;
+}
+
+.light-1 {
+  background-color: green;
+  animation-delay: 0.3s;
+}
+
+.light-2 {
+  background-color: yellow;
+  animation-delay: 0.6s;
+}
+
+.light-3 {
+  background-color: blue;
+  animation-delay: 0.9s;
+}
+
+/* Blinking animation */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Countdown styles */
+.header div {
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.header div span {
+  color: #FFD700; /* Gold color for the countdown numbers */
+  font-weight: bold;
+}

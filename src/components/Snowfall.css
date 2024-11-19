@@ -1,0 +1,33 @@
+@keyframes snow {
+  0% {
+    transform: translateY(-10px); /* Start above the viewport */
+  }
+  100% {
+    transform: translateY(100vh); /* End below the viewport */
+  }
+}
+
+.snowflake {
+  position: fixed; /* Ensures the snowflakes stay in place as you scroll */
+  top: -10px; /* Start slightly above the visible area */
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  animation: snow linear infinite;
+  z-index: 1000; /* Ensures it appears above all other elements */
+}
+
+.snowflake:nth-child(1) {
+  left: 10%;
+  animation-duration: 5s;
+  animation-delay: 0s;
+}
+
+.snowflake:nth-child(2) {
+  left: 20%;
+  animation-duration: 6s;
+  animation-delay: 1s;
+}
+
+/* Add more nth-child rules as needed to randomize positions */
