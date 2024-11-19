@@ -41,18 +41,21 @@ header h1 {
 /* Wishlist grid */
 .wishlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
+  gap: 20px; /* Space between cards */
   padding: 20px;
 }
 
 /* Card container */
 .card {
-  width: 200px;
-  height: 300px;
+  width: 100%; /* Full width of the grid cell */
+  aspect-ratio: 2 / 3; /* Ensures consistent height relative to width */
   perspective: 1000px; /* Creates a 3D space for the flip */
   position: relative;
   cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
 /* Front and back faces of the card */
@@ -65,8 +68,7 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
 /* Front of the card (wrapped state) */
@@ -79,7 +81,6 @@ header h1 {
   background-color: #388E3C; /* Green for unwrapped state */
   transform: rotateY(180deg); /* Start flipped */
   flex-direction: column;
-  text-align: center;
 }
 
 /* Flip the card when unwrapped */
@@ -97,26 +98,29 @@ header h1 {
   animation: bounce 2s infinite; /* Adds a fun bounce effect */
 }
 
+/* User image styling */
 .user-image {
-  width: 175px; /* Fixed width for all images */
-  height: 175px; /* Fixed height for all images */
-  object-fit: cover; /* Ensures the image fills the box without distortion */
+  width: 85%; /* Increased size relative to card */
+  max-width: 160px; /* Slightly larger maximum size */
+  aspect-ratio: 1 / 1; /* Ensures a square shape */
+  object-fit: cover; /* Crops and scales images */
   border-radius: 50%; /* Makes the image circular */
-  margin-bottom: 10px; /* Adds spacing below the image */
+  margin: auto; /* Center the image */
 }
 
-
-/* Wishlist link styling */
 .view-link {
-  color: #FFD700;
+  font-size: 20px; /* Keep text readable */
+  text-align: center; /* Center-align the link */
+  margin-top: 8px; /* Spacing above the link */
+  margin-bottom: 15px; /* Add extra spacing below the link */
+  color: #FFD700; /* Keep the gold color for links */
   text-decoration: none;
-  font-weight: bold;
-  margin-top: 10px;
 }
 
 .view-link:hover {
-  text-decoration: underline;
+  text-decoration: underline; /* Add underline on hover */
 }
+
 
 /* Lights container for the header */
 .lights {
@@ -184,3 +188,47 @@ header h1 {
     opacity: 1;
   }
 }
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Smaller columns */
+    gap: 15px; /* Reduce spacing between cards */
+  }
+
+  .card {
+    aspect-ratio: 2 / 3; /* Maintain a proportional card size */
+    display: flex; /* Flex layout for card content */
+    flex-direction: column; /* Stack content vertically */
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    overflow: hidden; /* Prevent content from spilling outside the card */
+    padding: 10px; /* Add internal spacing */
+  }
+
+  .present {
+    font-size: 36px; /* Adjust emoji size for smaller screens */
+    margin-bottom: 10px; /* Add spacing below the emoji */
+  }
+
+  .user-image {
+    width: 90%; /* Scale the image to fit within the card */
+    max-width: 120px; /* Restrict maximum size for small screens */
+    aspect-ratio: 1 / 1; /* Keep image square */
+    object-fit: cover; /* Crop image to fit container */
+    border-radius: 50%; /* Ensure circular image */
+    margin-bottom: 10px; /* Space below the image */
+  }
+
+  .view-link {
+    font-size: 12px; /* Reduce font size for smaller screens */
+    text-align: center; /* Center-align the text */
+    margin-top: 5px; /* Ensure proper spacing above the link */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for long links */
+  }
+}
+
+
+
