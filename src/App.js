@@ -27,6 +27,7 @@ import karlImage from './assets/images/karl.jpg'
 import marilynImage from './assets/images/marilyn.jpg'
 import bobImage from './assets/images/bob.jpg'
 import nickImage from './assets/images/nick.jpg'
+import nateImage from './assets/images/nate.jpg'
 
 
 // Shuffle function
@@ -62,6 +63,7 @@ const users = [
   { name: 'Marilyn', image: marilynImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/YT96AFJS6SPO?ref_=wl_share' },
   { name: 'Bob', image: bobImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/3Q9FSF6634XH3?ref_=wl_share' },
   { name: 'Nick', image: nickImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/3KOIVNWWRFPZ2?ref_=wl_share' },
+  { name: 'Nathaniel', image: nateImage, wishlistLink: 'https://www.amazon.com/registry/wishlist/302M6ZBIB14Z6/ref=cm_sw_r_cp_ep_ws_5cZvybFVCMWG7' },
 ];
 
 // Shuffle the cards
