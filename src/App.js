@@ -20,6 +20,13 @@ import mattImage from './assets/images/matt.jpg'
 import sonnyImage from './assets/images/sonny.jpg'
 import mikeImage from './assets/images/mike.jpg'
 import barbImage from './assets/images/barb.jpg'
+import ashleyImage from './assets/images/ashley.jpg'
+import brittanyImage from './assets/images/brittany.jpg'
+import wendyImage from './assets/images/wendy.jpg'
+import karlImage from './assets/images/karl.jpg'
+import marilynImage from './assets/images/marilyn.jpg'
+import bobImage from './assets/images/bob.jpg'
+import nickImage from './assets/images/nick.jpg'
 
 
 // Shuffle function
@@ -48,6 +55,13 @@ const users = [
   { name: 'Sonny', image: sonnyImage, wishlistLink: 'https://www.amazon.com/registry/wishlist/2JPFI5AG5ATOG/ref=cm_sw_r_cp_ep_ws_fFniAbJ9QVCVD' },
   { name: 'Barbara', image: barbImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Mike', image: mikeImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/1BGXRVLXFMMTU?ref=cm_sw_sm_r_un_un_1n9lQy3pOvl2W' },
+  { name: 'Ashley', image: ashleyImage, wishlistLink: 'https://www.amazon.com/registry/wishlist/QBNVEJLCHZ5T/ref=cm_sw_r_cp_ep_ws_NoyvybR17JHFE' },
+  { name: 'Brittany', image: brittanyImage, wishlistLink: 'https://www.amazon.com/registry/wishlist/2LBV3RMDXJWN4/ref=cm_sw_r_cp_ep_ws_ImyvybP71JAZZ' },
+  { name: 'Wendy', image: wendyImage, wishlistLink: 'https://www.amazon.com/registry/wishlist/1G0ON3X87IXFO/ref=cm_sw_r_cp_ep_ws_0nyvyb2MF7YW8' },
+  { name: 'Karl', image: karlImage, wishlistLink: 'https://www.amazon.com/registry/wishlist/R6KPCB5ERVKZ/ref=cm_sw_r_cp_ep_ws_qcZvyb1YPZ8YG' },
+  { name: 'Marilyn', image: marilynImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/YT96AFJS6SPO?ref_=wl_share' },
+  { name: 'Bob', image: bobImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/3Q9FSF6634XH3?ref_=wl_share' },
+  { name: 'Nick', image: nickImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/3KOIVNWWRFPZ2?ref_=wl_share' },
 ];
 
 // Shuffle the cards
