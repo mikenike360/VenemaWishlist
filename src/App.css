@@ -230,5 +230,52 @@ header h1 {
   }
 }
 
+.music-toggle {
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #FFD700;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.music-toggle:hover {
+  background-color: #FFC107;
+}
+
+.flip-toggle {
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #FF5722;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.flip-toggle:hover {
+  background-color: #E64A19;
+}
+
+.buttons {
+  
+  align-items: center; /* Vertically centers the buttons */
+}
+
+.buttons button {
+  padding: 10px 10px; /* Adjust values as needed for top-bottom and left-right padding */
+  margin-right: 5px;
+  line-height: 1; /* Set consistent line-height */
+}
+
+
+
 
 

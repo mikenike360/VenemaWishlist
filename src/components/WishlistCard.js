@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const WishlistCard = ({ user }) => {
+const WishlistCard = ({ user, isFlipped }) => {
   const [isWrapped, setIsWrapped] = useState(true);
 
+  // Sync local state with global flip state
+  useEffect(() => {
+    setIsWrapped(!isFlipped); // Flip all cards based on the `isFlipped` prop
+  }, [isFlipped]);
+
   const handleToggle = () => {
-    setIsWrapped(!isWrapped);
+    setIsWrapped((prev) => !prev); // Allow manual flipping
   };
 
   return (
