@@ -32,6 +32,7 @@ import chadImage from './assets/images/chad.jpg'
 import johnImage from './assets/images/john.jpg'
 import nolleImage from './assets/images/nolle.jpg'
 import roenImage from './assets/images/roen.jpg'
+import toshImage from './assets/images/tosh.jpg'
 
 
 // Shuffle function
@@ -72,6 +73,7 @@ const users = [
   { name: 'John', image: johnImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Roen', image: roenImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Nolle', image: nolleImage, wishlistLink: 'https://www.amazon.com/' },
+  { name: 'Tosh', image: toshImage, wishlistLink: 'https://www.amazon.com/' },
 ];
 
 // Shuffle the cards
