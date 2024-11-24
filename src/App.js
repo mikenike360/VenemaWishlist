@@ -72,7 +72,7 @@ const users = [
   { name: 'Chad', image: chadImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'John', image: johnImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Roen', image: roenImage, wishlistLink: 'https://www.amazon.com/' },
-  { name: 'Nolle', image: nolleImage, wishlistLink: 'https://www.amazon.com/' },
+  { name: 'Noli', image: nolleImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Tosh', image: toshImage, wishlistLink: 'https://www.amazon.com/' },
 ];
 
