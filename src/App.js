@@ -33,6 +33,8 @@ import johnImage from './assets/images/john.jpg'
 import nolleImage from './assets/images/nolle.jpg'
 import roenImage from './assets/images/roen.jpg'
 import toshImage from './assets/images/tosh.jpg'
+import morganImage from './assets/images/morgan.jpg'
+
 
 
 // Shuffle function
@@ -74,6 +76,7 @@ const users = [
   { name: 'Roen', image: roenImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Noli', image: nolleImage, wishlistLink: 'https://www.amazon.com/' },
   { name: 'Tosh', image: toshImage, wishlistLink: 'https://www.amazon.com/' },
+  { name: 'Morgan', image: morganImage, wishlistLink: 'https://www.amazon.com/hz/wishlist/ls/3BV8D72FK9NEP?type=wishlist'},
 ];
 
 // Shuffle the cards
