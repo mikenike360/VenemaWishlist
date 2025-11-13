@@ -18,9 +18,18 @@ const Navigation: React.FC = () => {
     return (
       <nav className="navbar bg-base-200 shadow-lg">
         <div className="container mx-auto">
-          <div className="flex-1">
-            <Link to="/" className="btn btn-ghost normal-case text-xl">
-              🎁 Venema Wishlist
+          <div className="flex-1 gap-2">
+            <Link 
+              to="/" 
+              className="btn btn-ghost"
+            >
+              🏠 Home
+            </Link>
+            <Link 
+              to="/wishlist" 
+              className="btn btn-ghost"
+            >
+              📋 Wishlist
             </Link>
           </div>
           <div className="flex-none gap-2">
@@ -105,20 +114,39 @@ const Navigation: React.FC = () => {
 
   // Default navigation for unauthenticated users on other pages
   return (
-    <nav className="navbar bg-base-200 shadow-lg">
-      <div className="container mx-auto">
-        <div className="flex-1">
-          <Link to="/" className="btn btn-ghost normal-case text-xl">
-            🎁 Venema Wishlist
-          </Link>
+    <>
+      {location.pathname === '/wishlist' && (
+        <div className="fixed top-4 right-4 z-[9999] hidden sm:block">
+          <div className="alert alert-info shadow-lg flex items-center gap-2 animate-in slide-in-from-right">
+            <span>ℹ️</span>
+            <span className="text-sm whitespace-nowrap">Register with your email to edit your profile</span>
+          </div>
         </div>
-        <div className="flex-none gap-2">
-          <Link to="/login" className="btn btn-primary">
-            Login
-          </Link>
+      )}
+      <nav className="navbar bg-base-200 shadow-lg">
+        <div className="container mx-auto">
+          <div className="flex-1 gap-2">
+            <Link 
+              to="/" 
+              className={`btn ${location.pathname === '/' ? 'btn-active' : 'btn-ghost'}`}
+            >
+              🏠 Home
+            </Link>
+            <Link 
+              to="/wishlist" 
+              className={`btn ${location.pathname === '/wishlist' ? 'btn-active' : 'btn-ghost'}`}
+            >
+              📋 Wishlist
+            </Link>
+          </div>
+          <div className="flex-none gap-2 items-center">
+            <Link to="/login" className="btn btn-primary">
+              Login
+            </Link>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 };
 
