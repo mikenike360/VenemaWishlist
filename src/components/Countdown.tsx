@@ -3,7 +3,7 @@ import { TimeLeft } from '../types';
 
 const Countdown: React.FC = () => {
   const calculateTimeLeft = (): TimeLeft => {
-    const christmas = new Date('December 25, 2024 00:00:00');
+    const christmas = new Date('December 25, 2025 00:00:00');
     const now = new Date();
     const difference = christmas.getTime() - now.getTime();
 
