@@ -1,6 +1,5 @@
 /* General body styling */
 body {
-  background: linear-gradient(to bottom, #FFEFBA, #FFFFFF);
   font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
@@ -10,13 +9,12 @@ body {
 /* App container */
 .App {
   text-align: center;
+  position: relative;
 }
 
-/* Header styles */
+/* Header styles - now uses theme colors */
 header {
-  background-color: #388E3C;
   padding: 20px;
-  color: white;
 }
 
 header h1 {
@@ -25,25 +23,20 @@ header h1 {
   margin: 0;
 }
 
-/* Countdown styles */
+/* Countdown styles - now uses theme colors */
 .header div {
   font-family: 'Poppins', sans-serif;
-  color: white;
   font-size: 18px;
   margin-top: 10px;
-}
-
-.header div span {
-  color: #FFD700; /* Gold color for countdown numbers */
-  font-weight: bold;
 }
 
 /* Wishlist grid */
 .wishlist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
-  gap: 20px; /* Space between cards */
+  gap: 24px; /* Space between cards */
   padding: 20px;
+  animation: fadeIn 0.5s ease-in;
 }
 
 /* Card container */
@@ -53,9 +46,10 @@ header h1 {
   perspective: 1000px; /* Creates a 3D space for the flip */
   position: relative;
   cursor: pointer;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 /* Front and back faces of the card */
@@ -64,23 +58,23 @@ header h1 {
   height: 100%;
   position: absolute;
   backface-visibility: hidden; /* Prevents mirrored content */
-  transition: transform 0.6s ease-in-out; /* Smooth flipping effect */
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth flipping effect */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
 }
 
-/* Front of the card (wrapped state) */
+/* Front of the card (wrapped state) - now uses theme error color */
 .card-front {
-  background-color: #D32F2F; /* Red for wrapped state */
+  /* Background color now handled by bg-error class */
 }
 
-/* Back of the card (unwrapped state) */
+/* Back of the card (unwrapped state) - now uses theme success color */
 .card-back {
-  background-color: #388E3C; /* Green for unwrapped state */
   transform: rotateY(180deg); /* Start flipped */
   flex-direction: column;
+  /* Background color now handled by bg-success class */
 }
 
 /* Flip the card when unwrapped */
@@ -106,6 +100,7 @@ header h1 {
   object-fit: cover; /* Crops and scales images */
   border-radius: 50%; /* Makes the image circular */
   margin: auto; /* Center the image */
+  transition: transform 0.3s ease;
 }
 
 .view-link {
@@ -113,12 +108,14 @@ header h1 {
   text-align: center; /* Center-align the link */
   margin-top: 8px; /* Spacing above the link */
   margin-bottom: 15px; /* Add extra spacing below the link */
-  color: #FFD700; /* Keep the gold color for links */
+  /* Color now uses theme colors */
   text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .view-link:hover {
   text-decoration: underline; /* Add underline on hover */
+  transform: scale(1.05);
 }
 
 
@@ -192,87 +189,71 @@ header h1 {
 /* Media query for smaller screens */
 @media (max-width: 768px) {
   .wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Smaller columns */
-    gap: 15px; /* Reduce spacing between cards */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Smaller columns */
+    gap: 16px; /* Reduce spacing between cards */
+    padding: 12px;
   }
 
   .card {
     aspect-ratio: 2 / 3; /* Maintain a proportional card size */
-    display: flex; /* Flex layout for card content */
-    flex-direction: column; /* Stack content vertically */
-    align-items: center; /* Center content horizontally */
-    justify-content: center; /* Center content vertically */
-    overflow: hidden; /* Prevent content from spilling outside the card */
-    padding: 0px; /* Add internal spacing */
+    border-radius: 8px;
   }
 
   .present {
-    font-size: 36px; /* Adjust emoji size for smaller screens */
-    margin-bottom: 10px; /* Add spacing below the emoji */
+    font-size: 40px; /* Adjust emoji size for smaller screens */
   }
 
   .user-image {
-    width: 90%; /* Scale the image to fit within the card */
+    width: 80%; /* Scale the image to fit within the card */
     max-width: 120px; /* Restrict maximum size for small screens */
-    aspect-ratio: 1 / 1; /* Keep image square */
-    object-fit: cover; /* Crop image to fit container */
-    border-radius: 50%; /* Ensure circular image */
-    margin-bottom: 10px; /* Space below the image */
-  }
-
-  .view-link {
-    font-size: 12px; /* Reduce font size for smaller screens */
-    text-align: center; /* Center-align the text */
-    margin-top: 5px; /* Ensure proper spacing above the link */
-    white-space: nowrap; /* Prevent text from wrapping */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Add ellipsis for long links */
   }
 }
 
-.music-toggle {
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #FFD700;
-  color: #333;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.music-toggle:hover {
-  background-color: #FFC107;
-}
-
-.flip-toggle {
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #FF5722;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.flip-toggle:hover {
-  background-color: #E64A19;
-}
-
-.buttons {
+@media (max-width: 480px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
   
-  align-items: center; /* Vertically centers the buttons */
+  .present {
+    font-size: 32px;
+  }
 }
 
-.buttons button {
-  padding: 10px 10px; /* Adjust values as needed for top-bottom and left-right padding */
-  margin-right: 5px;
-  line-height: 1; /* Set consistent line-height */
+/* Legacy button styles - now using DaisyUI buttons */
+.music-toggle,
+.flip-toggle {
+  /* Styles now handled by DaisyUI classes */
+}
+
+/* Print styles for export */
+@media print {
+  .navbar,
+  .header,
+  .snowfall,
+  button,
+  .dropdown,
+  .controls,
+  .no-print {
+    display: none !important;
+  }
+
+  .wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    page-break-inside: avoid;
+  }
+
+  .card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
 }
 
 

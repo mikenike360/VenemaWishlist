@@ -1,7 +1,7 @@
 import React from 'react';
 import './Snowfall.css'; // Import snowfall styles
 
-const Snowfall = () => {
+const Snowfall: React.FC = () => {
   const snowflakes = Array.from({ length: 50 });
 
   return (
@@ -22,3 +22,4 @@ const Snowfall = () => {
 };
 
 export default Snowfall;
+
