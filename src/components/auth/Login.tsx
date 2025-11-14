@@ -38,6 +38,26 @@ const Login: React.FC = () => {
         <div className="card-body p-4 sm:p-6">
           <h2 className="card-title text-2xl sm:text-3xl mb-4 justify-center">🎁 Welcome Back!</h2>
           
+          {/* Registration Required Notice */}
+          <div className="alert alert-info shadow-lg mb-4 border-2 border-info">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div className="flex-1">
+              <h3 className="font-bold text-sm sm:text-base mb-1">⚠️ Registration Required</h3>
+              <div className="text-xs sm:text-sm">
+                <p className="mb-1">
+                  You must{' '}
+                  <Link to="/register" className="link link-primary font-bold underline text-base-content hover:text-primary">
+                    register first
+                  </Link>
+                  {' '}before you can log in.
+                </p>
+                <p>After registration, an admin will approve your account before you can sign in.</p>
+              </div>
+            </div>
+          </div>
+          
           {error && (
             <div className="alert alert-error mb-4">
               <span>{error}</span>
@@ -84,13 +104,17 @@ const Login: React.FC = () => {
             </div>
           </form>
 
-          <div className="mt-3 sm:mt-4 text-center">
-            <p className="text-xs sm:text-sm">
-              Don't have an account?{' '}
-              <Link to="/register" className="link link-primary">
-                Register here
+          <div className="mt-3 sm:mt-4">
+            <div className="divider text-xs sm:text-sm">OR</div>
+            <div className="text-center">
+              <p className="text-xs sm:text-sm mb-2 font-semibold">
+                Need to create an account?
+              </p>
+              <Link to="/register" className="btn btn-outline btn-primary btn-sm sm:btn-md w-full">
+                <span className="text-base">📝</span>
+                <span>Register Now</span>
               </Link>
-            </p>
+            </div>
           </div>
         </div>
       </div>
