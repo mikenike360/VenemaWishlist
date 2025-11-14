@@ -97,13 +97,27 @@ header h1 {
 
 /* User image styling */
 .user-image {
-  width: 85%; /* Increased size relative to card */
-  max-width: 160px; /* Slightly larger maximum size */
+  width: 70%; /* Balanced size relative to card */
+  max-width: 140px; /* Balanced maximum size */
   aspect-ratio: 1 / 1; /* Ensures a square shape */
   object-fit: cover; /* Crops and scales images */
   border-radius: 50%; /* Makes the image circular */
   margin: auto; /* Center the image */
   transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .user-image {
+    width: 65%;
+    max-width: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-image {
+    width: 60%;
+    max-width: 75px;
+  }
 }
 
 .view-link {
@@ -206,10 +220,7 @@ header h1 {
     font-size: 36px; /* Adjust emoji size for smaller screens */
   }
 
-  .user-image {
-    width: 75%; /* Scale the image to fit within the card */
-    max-width: 100px; /* Restrict maximum size for small screens */
-  }
+  /* User image sizes are handled in the main .user-image rule with media queries */
 }
 
 @media (max-width: 480px) {
@@ -227,10 +238,7 @@ header h1 {
     font-size: 28px;
   }
 
-  .user-image {
-    width: 70%;
-    max-width: 80px;
-  }
+  /* User image sizes are handled in the main .user-image rule with media queries */
 }
 
 /* Legacy button styles - now using DaisyUI buttons */
