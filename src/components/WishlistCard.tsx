@@ -41,32 +41,32 @@ const WishlistCard: React.FC<WishlistCardProps> = ({ user, isFlipped }) => {
           🎁
         </div>
         {isHovered && !isWrapped && (
-          <div className="absolute bottom-4 text-error-content text-sm font-bold animate-bounce">
+          <div className="absolute bottom-2 sm:bottom-4 text-error-content text-xs sm:text-sm font-bold animate-bounce px-2">
             Click to wrap!
           </div>
         )}
         {isHovered && isWrapped && (
-          <div className="absolute bottom-4 text-error-content text-sm font-bold animate-bounce">
+          <div className="absolute bottom-2 sm:bottom-4 text-error-content text-xs sm:text-sm font-bold animate-bounce px-2">
             Click to open!
           </div>
         )}
       </div>
       <div className="card-back bg-success text-success-content">
-        <div className="flex flex-col items-center justify-center h-full p-4">
+        <div className="flex flex-col items-center justify-center h-full p-2 sm:p-4">
           <img 
             src={user.image} 
             alt={`${user.name}'s Wishlist`} 
-            className="user-image mb-4 border-4 border-base-100 shadow-xl transition-transform duration-300 hover:scale-110" 
+            className="user-image mb-2 sm:mb-4 border-2 sm:border-4 border-base-100 shadow-xl transition-transform duration-300 hover:scale-110" 
           />
-          <h2 className="text-2xl font-bold text-success-content mb-4 drop-shadow-lg">
+          <h2 className="text-base sm:text-xl md:text-2xl font-bold text-success-content mb-2 sm:mb-4 drop-shadow-lg px-2 text-center">
             {user.name} 🎁
           </h2>
-          <div className="flex flex-col gap-2 items-center">
+          <div className="flex flex-col gap-1.5 sm:gap-2 items-center w-full px-2">
             <a 
               href={user.wishlistLink} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="btn btn-warning btn-sm md:btn-md font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+              className="btn btn-warning btn-xs sm:btn-sm md:btn-md font-bold shadow-lg hover:shadow-xl transition-all duration-300 w-full text-xs sm:text-sm"
               onClick={(e) => e.stopPropagation()}
             >
               View Wishlist
@@ -74,7 +74,7 @@ const WishlistCard: React.FC<WishlistCardProps> = ({ user, isFlipped }) => {
             <CopyLinkButton 
               url={user.wishlistLink}
               label="Copy Link"
-              className="btn-xs"
+              className="btn-xs w-full text-xs"
             />
           </div>
         </div>

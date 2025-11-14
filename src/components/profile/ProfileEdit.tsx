@@ -199,9 +199,9 @@ const ProfileEdit: React.FC = () => {
     return (
       <div className="min-h-screen bg-base-100">
         <Navigation />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
           <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
-            <div className="card-body">
+            <div className="card-body p-4 sm:p-6">
               <LoadingSkeleton type="profile" count={1} />
               <div className="divider"></div>
               <LoadingSkeleton type="text" count={3} />
@@ -214,22 +214,22 @@ const ProfileEdit: React.FC = () => {
 
   if (profiles.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="card bg-base-100 shadow-xl">
-          <div className="card-body text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="card-title text-2xl justify-center mb-4">No Profiles Found</h2>
+          <div className="card-body text-center p-4 sm:p-6">
+            <div className="text-4xl sm:text-6xl mb-4">⚠️</div>
+            <h2 className="card-title text-xl sm:text-2xl justify-center mb-4">No Profiles Found</h2>
             {error && (
-              <div className="alert alert-warning mb-4">
+              <div className="alert alert-warning mb-4 text-sm sm:text-base">
                 <span>{error}</span>
               </div>
             )}
-            <p className="mb-4">You need to claim a profile first.</p>
-            <div className="flex gap-2 justify-center">
-              <button className="btn btn-primary" onClick={() => navigate('/claim')}>
+            <p className="mb-4 text-sm sm:text-base">You need to claim a profile first.</p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <button className="btn btn-sm sm:btn-md btn-primary" onClick={() => navigate('/claim')}>
                 Go to Claim Page
               </button>
-              <button className="btn btn-ghost" onClick={fetchProfiles}>
+              <button className="btn btn-sm sm:btn-md btn-ghost" onClick={fetchProfiles}>
                 Refresh
               </button>
             </div>
@@ -246,21 +246,21 @@ const ProfileEdit: React.FC = () => {
   return (
     <div className="min-h-screen bg-base-100">
       <Navigation />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
-        <div className="card-body">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="card-title text-3xl">Edit Profile</h1>
-            <div className="flex items-center gap-2">
+        <div className="card-body p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+            <h1 className="card-title text-2xl sm:text-3xl">Edit Profile</h1>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <button 
-                className="btn btn-outline btn-primary"
+                className="btn btn-sm sm:btn-md btn-outline btn-primary w-full sm:w-auto"
                 onClick={() => navigate('/claim')}
               >
                 👤 Claim Profiles
               </button>
               {profiles.length > 1 && (
-                <div className="dropdown dropdown-end">
-                  <label tabIndex={0} className="btn btn-outline">
+                <div className="dropdown dropdown-end w-full sm:w-auto">
+                  <label tabIndex={0} className="btn btn-sm sm:btn-md btn-outline w-full sm:w-auto">
                     {profile.name} ▼
                   </label>
                   <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
@@ -281,27 +281,27 @@ const ProfileEdit: React.FC = () => {
           </div>
 
           {error && (
-            <div className="alert alert-error mb-4">
+            <div className="alert alert-error mb-4 text-sm sm:text-base">
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="alert alert-success mb-4">
+            <div className="alert alert-success mb-4 text-sm sm:text-base">
               <span>Profile updated successfully!</span>
             </div>
           )}
 
           {/* Editable Fields Section - Prominent */}
-          <div className="space-y-6 mb-8">
+          <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
             <div className="divider">
-              <h2 className="text-xl font-bold">Edit Profile Information</h2>
+              <h2 className="text-lg sm:text-xl font-bold">Edit Profile Information</h2>
             </div>
 
             {/* Profile Picture Upload */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text font-semibold text-lg">Profile Picture</span>
+              <label className="label py-1 sm:py-2">
+                <span className="label-text font-semibold text-base sm:text-lg">Profile Picture</span>
               </label>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 {/* Current Picture Preview */}
@@ -348,30 +348,30 @@ const ProfileEdit: React.FC = () => {
 
             {/* Wishlist Link */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text font-semibold text-lg">Wishlist Link</span>
-                <span className="label-text-alt text-base-content/60">Your Amazon wishlist URL</span>
+              <label className="label py-1 sm:py-2">
+                <span className="label-text font-semibold text-base sm:text-lg">Wishlist Link</span>
+                <span className="label-text-alt text-xs sm:text-sm text-base-content/60">Your Amazon wishlist URL</span>
               </label>
               <input
                 type="url"
                 placeholder="https://www.amazon.com/hz/wishlist/..."
-                className="input input-bordered input-lg w-full"
+                className="input input-bordered input-sm sm:input-lg w-full"
                 value={wishlistLink}
                 onChange={(e) => setWishlistLink(e.target.value)}
               />
               <label className="label">
-                <span className="label-text-alt">Paste your Amazon wishlist link here</span>
+                <span className="label-text-alt text-xs sm:text-sm">Paste your Amazon wishlist link here</span>
               </label>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="card-actions justify-end mt-6 pt-6 border-t border-base-300">
-            <button className="btn btn-ghost" onClick={() => navigate('/wishlist')}>
+          <div className="card-actions justify-end flex-col sm:flex-row gap-2 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-base-300">
+            <button className="btn btn-sm sm:btn-md btn-ghost w-full sm:w-auto" onClick={() => navigate('/wishlist')}>
               Cancel
             </button>
             <button
-              className="btn btn-primary btn-lg"
+              className="btn btn-sm sm:btn-md sm:btn-lg btn-primary w-full sm:w-auto"
               onClick={handleSave}
               disabled={saving}
             >
@@ -390,17 +390,17 @@ const ProfileEdit: React.FC = () => {
           </div>
 
           {/* Display-Only Information Section */}
-          <div className="divider mt-8"></div>
+          <div className="divider mt-6 sm:mt-8"></div>
           
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Profile Information</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold">Profile Information</h2>
             </div>
             
             {/* Profile Name Display */}
-            <div className="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
+            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-base-200 rounded-lg">
               <div className="avatar">
-                <div className="w-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 overflow-hidden">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 overflow-hidden">
                   <img 
                     src={imageUrl || fallbackImages[profile.name] || ''} 
                     alt={profile.name}
@@ -411,22 +411,22 @@ const ProfileEdit: React.FC = () => {
                         target.style.display = 'none';
                         const parent = target.parentElement;
                         if (parent) {
-                          parent.className = 'w-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold';
+                          parent.className = 'w-12 h-12 sm:w-16 sm:h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold';
                           parent.textContent = profile.name.charAt(0);
                         }
                       }
                     }}
                   />
                   {!imageUrl && !fallbackImages[profile.name] && (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
+                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold">
                       {profile.name.charAt(0)}
                     </div>
                   )}
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-semibold">{profile.name}</h3>
-                <p className="text-sm text-base-content/60">Profile Name (cannot be changed)</p>
+                <h3 className="text-base sm:text-lg font-semibold">{profile.name}</h3>
+                <p className="text-xs sm:text-sm text-base-content/60">Profile Name (cannot be changed)</p>
               </div>
             </div>
 

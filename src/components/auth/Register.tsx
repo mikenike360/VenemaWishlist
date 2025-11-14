@@ -72,16 +72,16 @@ const Register: React.FC = () => {
     return (
       <div className="min-h-screen bg-base-100">
         <Navigation />
-        <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-2 sm:px-4 py-4">
           <div className="card w-full max-w-md bg-base-100 shadow-xl">
-          <div className="card-body text-center">
-            <div className="text-6xl mb-4">✅</div>
-            <h2 className="card-title text-2xl justify-center mb-4">Registration Successful!</h2>
-            <p className="mb-4">
+          <div className="card-body text-center p-4 sm:p-6">
+            <div className="text-4xl sm:text-6xl mb-4">✅</div>
+            <h2 className="card-title text-xl sm:text-2xl justify-center mb-4">Registration Successful!</h2>
+            <p className="text-sm sm:text-base mb-4">
               Your registration request has been submitted. An admin will review and approve your account.
               You'll be able to sign in once approved.
             </p>
-            <Link to="/login" className="btn btn-primary">
+            <Link to="/login" className="btn btn-sm sm:btn-md btn-primary w-full sm:w-auto">
               Go to Login
             </Link>
           </div>
@@ -94,26 +94,26 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen bg-base-100">
       <Navigation />
-      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-2 sm:px-4 py-4">
         <div className="card w-full max-w-md bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title text-3xl mb-4 justify-center">🎁 Join the Family!</h2>
+        <div className="card-body p-4 sm:p-6">
+          <h2 className="card-title text-2xl sm:text-3xl mb-4 justify-center">🎁 Join the Family!</h2>
           
           {error && (
-            <div className="alert alert-error mb-4">
+            <div className="alert alert-error mb-4 text-sm sm:text-base">
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Email</span>
+              <label className="label py-1 sm:py-2">
+                <span className="label-text text-sm sm:text-base">Email</span>
               </label>
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="input input-bordered"
+                className="input input-bordered input-sm sm:input-md"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -121,11 +121,11 @@ const Register: React.FC = () => {
             </div>
 
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Which family member are you?</span>
+              <label className="label py-1 sm:py-2">
+                <span className="label-text text-sm sm:text-base">Which family member are you?</span>
               </label>
               <select
-                className="select select-bordered"
+                className="select select-bordered select-sm sm:select-md"
                 value={requestedName}
                 onChange={(e) => setRequestedName(e.target.value)}
                 required
@@ -139,7 +139,7 @@ const Register: React.FC = () => {
               </select>
               {availableNames.length === 0 && (
                 <label className="label">
-                  <span className="label-text-alt text-warning">
+                  <span className="label-text-alt text-warning text-xs sm:text-sm">
                     No available profiles. Contact admin.
                   </span>
                 </label>
@@ -147,13 +147,13 @@ const Register: React.FC = () => {
             </div>
 
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Password</span>
+              <label className="label py-1 sm:py-2">
+                <span className="label-text text-sm sm:text-base">Password</span>
               </label>
               <input
                 type="password"
                 placeholder="At least 6 characters"
-                className="input input-bordered"
+                className="input input-bordered input-sm sm:input-md"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -162,23 +162,23 @@ const Register: React.FC = () => {
             </div>
 
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Confirm Password</span>
+              <label className="label py-1 sm:py-2">
+                <span className="label-text text-sm sm:text-base">Confirm Password</span>
               </label>
               <input
                 type="password"
                 placeholder="Confirm password"
-                className="input input-bordered"
+                className="input input-bordered input-sm sm:input-md"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
 
-            <div className="form-control mt-6">
+            <div className="form-control mt-4 sm:mt-6">
               <button
                 type="submit"
-                className={`btn btn-primary ${loading ? 'loading' : ''}`}
+                className={`btn btn-sm sm:btn-md btn-primary w-full ${loading ? 'loading' : ''}`}
                 disabled={loading || availableNames.length === 0}
               >
                 {loading ? 'Registering...' : 'Register'}
@@ -186,8 +186,8 @@ const Register: React.FC = () => {
             </div>
           </form>
 
-          <div className="mt-4 text-center">
-            <p className="text-sm">
+          <div className="mt-3 sm:mt-4 text-center">
+            <p className="text-xs sm:text-sm">
               Already have an account?{' '}
               <Link to="/login" className="link link-primary">
                 Sign in here

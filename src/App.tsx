@@ -117,6 +117,7 @@ const WishlistPage: React.FC = () => {
   const [shuffledUsers, setShuffledUsers] = useState<User[]>([]);
   const [theme, setTheme] = useState<string>('winter');
   const [showThemeList, setShowThemeList] = useState<boolean>(false);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const themeSelectorRef = useRef<HTMLDivElement>(null);
 
   // Check if user has claimed any profiles
@@ -255,117 +256,157 @@ const WishlistPage: React.FC = () => {
       <Navigation />
       
       {/* Controls Section */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-6 no-print">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        <div className="flex flex-col gap-4 sm:gap-6 mb-4 sm:mb-6 no-print">
           {/* Search Input */}
-          <div className="form-control w-full max-w-xs">
-            <label className="label">
-              <span className="label-text font-bold">🔍 Search Family Members</span>
+          <div className="form-control w-full sm:max-w-md mx-auto">
+            <label className="label py-1 sm:py-2">
+              <span className="label-text font-bold text-sm sm:text-base">🔍 Search Family Members</span>
             </label>
             <input
               type="text"
               placeholder="Type a name..."
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered input-primary w-full input-sm sm:input-md focus:input-primary focus:ring-2 focus:ring-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* Music Controls */}
-          <div className="flex flex-col gap-2">
-            <button 
-              className={`btn ${isPlaying ? 'btn-error' : 'btn-success'} gap-2`}
-              onClick={toggleMusic}
-            >
-              {isPlaying ? '🔇 Stop Music' : '🔊 Play Music'}
-            </button>
-            {isPlaying && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm">🔉</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={volume}
-                  onChange={(e) => setVolume(parseFloat(e.target.value))}
-                  className="range range-xs range-warning w-24"
-                />
-                <span className="text-sm">{Math.round(volume * 100)}%</span>
+          {/* Collapsible Menu Button */}
+          <div className="flex justify-center">
+            <div className="collapse collapse-arrow bg-base-200 shadow-md rounded-lg w-full sm:max-w-2xl">
+              <input 
+                type="checkbox" 
+                checked={menuOpen}
+                onChange={(e) => setMenuOpen(e.target.checked)}
+              />
+              <div className="collapse-title text-lg font-semibold flex items-center justify-center gap-2">
+                <span>⚙️</span>
+                <span>Actions & Settings</span>
               </div>
-            )}
-          </div>
+              <div className="collapse-content">
+                <div className="flex flex-col gap-4 pt-2">
+                  {/* Main Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+                    {/* Flip All Button */}
+                    <button 
+                      className={`btn btn-sm sm:btn-md flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all ${allFlipped ? 'btn-secondary' : 'btn-primary'} gap-2 font-semibold`}
+                      onClick={() => {
+                        toggleAllFlipped();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <span className="text-lg">{allFlipped ? '🎁' : '✨'}</span>
+                      <span>{allFlipped ? 'Reset Presents!' : 'Open Presents!'}</span>
+                    </button>
 
-          {/* Flip All Button */}
-          <button 
-            className={`btn ${allFlipped ? 'btn-secondary' : 'btn-primary'} gap-2`}
-            onClick={toggleAllFlipped}
-          >
-            {allFlipped ? '🎁 Reset Presents!' : '✨ Open Presents!'}
-          </button>
+                    {/* Shuffle Button */}
+                    <button 
+                      className="btn btn-sm sm:btn-md btn-accent gap-2 flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all font-semibold"
+                      onClick={() => {
+                        handleShuffle();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <span className="text-lg">🔀</span>
+                      <span>Shuffle Cards</span>
+                    </button>
 
-          {/* Shuffle Button */}
-          <button 
-            className="btn btn-accent gap-2"
-            onClick={handleShuffle}
-          >
-            🔀 Shuffle Cards
-          </button>
+                    {/* Theme Selector */}
+                    <div className="relative flex-1 sm:flex-none" ref={themeSelectorRef}>
+                      <button 
+                        className="btn btn-sm sm:btn-md btn-outline gap-2 w-full sm:w-auto shadow-md hover:shadow-lg transition-all font-semibold"
+                        onClick={() => setShowThemeList(true)}
+                      >
+                        <span className="text-lg">🎨</span>
+                        <span>Theme</span>
+                      </button>
+                      {showThemeList && (
+                        <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 z-50 animate-in fade-in slide-in-from-top-2">
+                          <div className="card bg-base-100 shadow-xl border-2 border-base-300">
+                            <div className="card-body p-2 max-h-96 overflow-y-auto w-full sm:w-56">
+                              <ul className="menu menu-vertical w-full">
+                                {themes.map((t) => (
+                                  <li key={t}>
+                                    <button
+                                      onClick={() => {
+                                        setTheme(t);
+                                        setShowThemeList(false);
+                                        showToast(`Theme changed to ${t.charAt(0).toUpperCase() + t.slice(1)}`, 'info');
+                                      }}
+                                      className={`${theme === t ? 'active bg-primary text-primary-content' : 'hover:bg-base-200'} flex items-center justify-between text-sm rounded-lg transition-all`}
+                                    >
+                                      <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
+                                      {theme === t && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                      )}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-          {/* Theme Selector */}
-          <div className="relative" ref={themeSelectorRef}>
-            <button 
-              className="btn btn-outline gap-2"
-              onClick={() => setShowThemeList(true)}
-            >
-              🎨 Theme
-            </button>
-            {showThemeList && (
-              <div className="absolute top-full left-0 mt-2 z-50">
-                <div className="card bg-base-100 shadow-lg border border-base-300">
-                  <div className="card-body p-2 max-h-96 overflow-y-auto w-56">
-                    <ul className="menu menu-vertical w-full">
-                      {themes.map((t) => (
-                        <li key={t}>
-                          <button
-                            onClick={() => {
-                              setTheme(t);
-                              setShowThemeList(false);
-                              showToast(`Theme changed to ${t.charAt(0).toUpperCase() + t.slice(1)}`, 'info');
-                            }}
-                            className={`${theme === t ? 'active' : ''} flex items-center justify-between`}
-                          >
-                            <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
-                            {theme === t && (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Secondary Actions Row */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+                    {/* Music Controls */}
+                    <div className="card bg-base-100 shadow-md p-3 sm:p-4 flex-1 sm:flex-none sm:min-w-[200px]">
+                      <div className="flex flex-col gap-2">
+                        <button 
+                          className={`btn btn-sm sm:btn-md w-full ${isPlaying ? 'btn-error' : 'btn-success'} gap-2 shadow-md hover:shadow-lg transition-all font-semibold`}
+                          onClick={toggleMusic}
+                        >
+                          <span className="text-lg">{isPlaying ? '🔇' : '🔊'}</span>
+                          <span>{isPlaying ? 'Stop Music' : 'Play Music'}</span>
+                        </button>
+                        {isPlaying && (
+                          <div className="flex items-center gap-2 bg-base-200 rounded-lg p-2">
+                            <span className="text-sm">🔉</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="1"
+                              step="0.1"
+                              value={volume}
+                              onChange={(e) => setVolume(parseFloat(e.target.value))}
+                              className="range range-xs range-warning flex-1"
+                            />
+                            <span className="text-xs font-semibold w-10">{Math.round(volume * 100)}%</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Copy Link Button */}
+                    <div className="flex-1 sm:flex-none">
+                      <CopyLinkButton 
+                        url={window.location.href}
+                        label="Copy Link"
+                        className="btn-sm sm:btn-md w-full sm:w-auto shadow-md hover:shadow-lg transition-all"
+                      />
+                    </div>
+
+                    {/* Export Wishlist */}
+                    <div className="flex-1 sm:flex-none w-full sm:w-auto">
+                      <ExportWishlist profiles={profiles} className="w-full sm:w-auto" />
+                    </div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-
-          {/* Copy Link Button */}
-          <CopyLinkButton 
-            url={window.location.href}
-            label="Copy Page Link"
-          />
-
-
-          {/* Export Wishlist */}
-          <ExportWishlist profiles={profiles} />
         </div>
 
         {/* Results Count */}
         {searchQuery && (
           <div className="text-center mb-4">
-            <div className="badge badge-info badge-lg">
+            <div className="badge badge-info badge-md sm:badge-lg">
               Found {filteredUsers.length} {filteredUsers.length === 1 ? 'person' : 'people'}
             </div>
           </div>
@@ -373,7 +414,7 @@ const WishlistPage: React.FC = () => {
       </div>
 
             {/* Cards Grid */}
-            <main className="container mx-auto px-4 pb-8 print:px-0">
+            <main className="container mx-auto px-2 sm:px-4 pb-6 sm:pb-8 print:px-0">
         {filteredUsers.length > 0 ? (
           <div className="wishlist-grid">
             {filteredUsers.map((user, index) => (
@@ -381,10 +422,10 @@ const WishlistPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h2 className="text-2xl font-bold mb-2">No matches found</h2>
-                  <p className="text-base-content/70">Try searching for a different name</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="text-4xl sm:text-6xl mb-4">🔍</div>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">No matches found</h2>
+            <p className="text-sm sm:text-base text-base-content/70">Try searching for a different name</p>
           </div>
         )}
       </main>
@@ -410,14 +451,15 @@ const App: React.FC = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/wishlist" element={<WishlistPage />} />
-            <Route
+            {/* Secret Santa temporarily hidden */}
+            {/* <Route
               path="/secret-santa"
               element={
                 <AuthGuard>
                   <SecretSanta />
                 </AuthGuard>
               }
-            />
+            /> */}
       <Route
         path="/admin"
         element={

@@ -14,20 +14,23 @@ body {
 
 /* Header styles - now uses theme colors */
 header {
-  padding: 20px;
+  /* Padding is now handled by Tailwind classes for responsive sizing */
+  padding: 0;
 }
 
 header h1 {
   font-family: 'Mountains of Christmas', cursive;
-  font-size: 36px;
+  /* Font size is now handled by Tailwind responsive classes */
   margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Countdown styles - now uses theme colors */
 .header div {
   font-family: 'Poppins', sans-serif;
-  font-size: 18px;
-  margin-top: 10px;
+  /* Font size is now handled by Tailwind responsive classes */
+  margin-top: 0;
 }
 
 /* Wishlist grid */
@@ -189,9 +192,9 @@ header h1 {
 /* Media query for smaller screens */
 @media (max-width: 768px) {
   .wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Smaller columns */
-    gap: 16px; /* Reduce spacing between cards */
-    padding: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Smaller columns */
+    gap: 12px; /* Reduce spacing between cards */
+    padding: 10px;
   }
 
   .wishlist-grid .card {
@@ -200,23 +203,33 @@ header h1 {
   }
 
   .present {
-    font-size: 40px; /* Adjust emoji size for smaller screens */
+    font-size: 36px; /* Adjust emoji size for smaller screens */
   }
 
   .user-image {
-    width: 80%; /* Scale the image to fit within the card */
-    max-width: 120px; /* Restrict maximum size for small screens */
+    width: 75%; /* Scale the image to fit within the card */
+    max-width: 100px; /* Restrict maximum size for small screens */
   }
 }
 
 @media (max-width: 480px) {
   .wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 10px;
+    padding: 8px;
   }
   
+  .wishlist-grid .card {
+    border-radius: 6px;
+  }
+
   .present {
-    font-size: 32px;
+    font-size: 28px;
+  }
+
+  .user-image {
+    width: 70%;
+    max-width: 80px;
   }
 }
 

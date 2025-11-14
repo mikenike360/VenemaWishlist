@@ -463,33 +463,33 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
   return (
     <div className="min-h-screen bg-base-100">
       <Navigation />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-4xl">
         <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h1 className="card-title text-3xl mb-6">🎅 Secret Santa</h1>
+          <div className="card-body p-4 sm:p-6">
+            <h1 className="card-title text-2xl sm:text-3xl mb-4 sm:mb-6">🎅 Secret Santa</h1>
 
             {isAdmin && (
               <>
                 {/* Opt-In Management Section */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">Select Participants</h2>
-                    <div className="flex gap-2">
+                <div className="mb-4 sm:mb-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+                    <h2 className="text-lg sm:text-xl font-bold">Select Participants</h2>
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <button
-                        className="btn btn-sm btn-outline"
+                        className="btn btn-sm btn-outline flex-1 sm:flex-none"
                         onClick={selectAllOptIn}
                       >
                         Select All
                       </button>
                       <button
-                        className="btn btn-sm btn-outline"
+                        className="btn btn-sm btn-outline flex-1 sm:flex-none"
                         onClick={deselectAllOptIn}
                       >
                         Deselect All
                       </button>
                     </div>
                   </div>
-                  <div className="bg-base-200 p-4 rounded-lg max-h-64 overflow-y-auto">
+                  <div className="bg-base-200 p-3 sm:p-4 rounded-lg max-h-64 overflow-y-auto">
                     {profiles.length === 0 ? (
                       <p className="text-sm text-base-content/70">No profiles yet.</p>
                     ) : (
@@ -501,7 +501,7 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
                           return (
                             <label
                               key={profile.id}
-                              className="flex items-center gap-3 cursor-pointer hover:bg-base-300 p-2 rounded"
+                              className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:bg-base-300 p-2 rounded"
                             >
                               <input
                                 type="checkbox"
@@ -509,9 +509,9 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
                                 checked={profile.opt_in || false}
                                 onChange={() => toggleOptIn(profile.id, profile.opt_in || false)}
                               />
-                              <div className="flex-1">
-                                <span className="font-medium">{profile.name}</span>
-                                <span className="text-sm text-base-content/70 ml-2">
+                              <div className="flex-1 min-w-0">
+                                <span className="font-medium text-sm sm:text-base">{profile.name}</span>
+                                <span className="text-xs sm:text-sm text-base-content/70 ml-1 sm:ml-2 block sm:inline">
                                   ({userEmail})
                                 </span>
                               </div>
@@ -521,11 +521,11 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
                       </div>
                     )}
                   </div>
-                  <div className="mt-2 text-sm text-base-content/70">
+                  <div className="mt-2 text-xs sm:text-sm text-base-content/70">
                     {profiles.filter(p => p.opt_in).length} of{' '}
                     {profiles.length} profile(s) opted in
                     {profiles.filter(p => p.claimed_by && p.opt_in).length > 0 && (
-                      <span className="ml-2">
+                      <span className="ml-1 sm:ml-2">
                         ({profiles.filter(p => p.claimed_by && p.opt_in).length} claimed)
                       </span>
                     )}
@@ -533,12 +533,12 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2 mb-6">
-                  <button className="btn btn-primary" onClick={generatePairs}>
+                <div className="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
+                  <button className="btn btn-sm sm:btn-md btn-primary flex-1 sm:flex-none" onClick={generatePairs}>
                     🎲 Generate Pairs
                   </button>
                   {pairs.length > 0 && (
-                    <button className="btn btn-error" onClick={clearPairs}>
+                    <button className="btn btn-sm sm:btn-md btn-error flex-1 sm:flex-none" onClick={clearPairs}>
                       🗑️ Clear All Pairs
                     </button>
                   )}
@@ -548,46 +548,46 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
 
             {myMatch ? (
               <div className="card bg-primary text-primary-content shadow-lg">
-                <div className="card-body text-center">
-                  <h2 className="card-title text-2xl justify-center mb-4">🎁 Your Secret Santa Match!</h2>
-                  <p className="text-xl mb-2">
+                <div className="card-body text-center p-4 sm:p-6">
+                  <h2 className="card-title text-xl sm:text-2xl justify-center mb-3 sm:mb-4">🎁 Your Secret Santa Match!</h2>
+                  <p className="text-lg sm:text-xl mb-2">
                     You are buying a gift for:
                   </p>
-                  <p className="text-3xl font-bold mb-4">{myMatch.receiver_name}</p>
-                  <p className="text-sm opacity-80">
+                  <p className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">{myMatch.receiver_name}</p>
+                  <p className="text-xs sm:text-sm opacity-80">
                     Check their wishlist to see what they want!
                   </p>
                 </div>
               </div>
             ) : pairs.length > 0 ? (
-              <div className="alert alert-warning">
+              <div className="alert alert-warning text-sm sm:text-base">
                 <span>No match found for your profiles. Contact admin.</span>
               </div>
             ) : (
-              <div className="alert alert-info">
+              <div className="alert alert-info text-sm sm:text-base">
                 <span>No Secret Santa pairs have been generated yet. {isAdmin && 'Click "Generate Pairs" to get started!'}</span>
               </div>
             )}
 
             {isAdmin && pairs.length > 0 && (
-              <div className="mt-6 border-t pt-6">
-                <h2 className="text-xl font-bold mb-4">All Secret Santa Pairs ({pairs.length})</h2>
-                <div className="bg-base-200 rounded-lg p-4">
+              <div className="mt-4 sm:mt-6 border-t pt-4 sm:pt-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">All Secret Santa Pairs ({pairs.length})</h2>
+                <div className="bg-base-200 rounded-lg p-2 sm:p-4">
                   <div className="overflow-x-auto">
-                    <table className="table table-zebra table-sm w-full">
+                    <table className="table table-zebra table-xs sm:table-sm w-full">
                       <thead>
                         <tr>
-                          <th className="text-sm font-bold">Giver</th>
-                          <th className="text-sm font-bold text-center w-12">→</th>
-                          <th className="text-sm font-bold">Receiver</th>
+                          <th className="text-xs sm:text-sm font-bold">Giver</th>
+                          <th className="text-xs sm:text-sm font-bold text-center w-8 sm:w-12">→</th>
+                          <th className="text-xs sm:text-sm font-bold">Receiver</th>
                         </tr>
                       </thead>
                       <tbody>
                         {pairs.map((pair, idx) => (
                           <tr key={idx} className="hover:bg-base-300">
-                            <td className="font-semibold py-2">{pair.giver_name}</td>
-                            <td className="text-center py-2 text-lg">🎁</td>
-                            <td className="py-2">{pair.receiver_name}</td>
+                            <td className="font-semibold py-1 sm:py-2 text-xs sm:text-base">{pair.giver_name}</td>
+                            <td className="text-center py-1 sm:py-2 text-base sm:text-lg">🎁</td>
+                            <td className="py-1 sm:py-2 text-xs sm:text-base">{pair.receiver_name}</td>
                           </tr>
                         ))}
                       </tbody>

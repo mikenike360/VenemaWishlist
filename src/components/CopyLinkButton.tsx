@@ -24,7 +24,7 @@ const CopyLinkButton: React.FC<CopyLinkButtonProps> = ({ url, label = 'Copy Link
 
   return (
     <button
-      className={`btn btn-sm btn-outline gap-2 ${className}`}
+      className={`btn btn-outline gap-2 ${className}`}
       onClick={handleCopy}
     >
       {copied ? (
