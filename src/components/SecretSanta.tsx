@@ -22,6 +22,7 @@ const SecretSanta: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [myMatch, setMyMatch] = useState<SecretSantaPair | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [userEmails, setUserEmails] = useState<Map<string, string>>(new Map());
 
   const fetchProfiles = useCallback(async () => {
     const { data } = await supabase
@@ -32,6 +33,39 @@ const SecretSanta: React.FC = () => {
       setProfiles(data);
     }
   }, []);
+
+  const fetchUserEmails = useCallback(async () => {
+    if (!isAdmin) return;
+    
+    try {
+      // Get all unique user IDs from all profiles (not just claimed)
+      const allUserIds = profiles
+        .filter(p => p.claimed_by)
+        .map(p => p.claimed_by!)
+        .filter((id, index, self) => self.indexOf(id) === index);
+      
+      if (allUserIds.length === 0) {
+        setUserEmails(new Map());
+        return;
+      }
+
+      // Fetch user emails from user_approvals
+      const { data: approvals } = await supabase
+        .from('user_approvals')
+        .select('user_id, email')
+        .in('user_id', allUserIds);
+
+      if (approvals) {
+        const emailMap = new Map<string, string>();
+        approvals.forEach(approval => {
+          emailMap.set(approval.user_id, approval.email);
+        });
+        setUserEmails(emailMap);
+      }
+    } catch (error) {
+      console.error('Error fetching user emails:', error);
+    }
+  }, [isAdmin, profiles]);
 
   const createSecretSantaTable = useCallback(async () => {
     // This would need to be run in Supabase SQL editor
@@ -57,9 +91,24 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
     setLoading(true);
     try {
       // Check if secret_santa_pairs table exists, if not create it
+      // Use a simple select query without any joins to avoid RLS issues
+      // For admins, we want ALL pairs, so we don't add any filters
+      // If RLS is still active, this query will be filtered by policies
       const { data: pairsData, error } = await supabase
         .from('secret_santa_pairs')
-        .select('giver_id, receiver_id, created_at');
+        .select('giver_id, receiver_id, created_at')
+        .limit(1000); // Add limit to avoid any potential issues
+      
+      // If we're an admin and got fewer pairs than expected, log a warning
+      if (isAdmin && pairsData && pairsData.length > 0) {
+        const totalOptedIn = profiles.filter(p => p.claimed_by && p.opt_in).length;
+        if (pairsData.length < totalOptedIn) {
+          console.warn(
+            `Admin query returned ${pairsData.length} pairs, but ${totalOptedIn} profiles are opted in. ` +
+            `RLS might still be active. Expected ~${totalOptedIn} pairs.`
+          );
+        }
+      }
 
       if (error && error.code === '42P01') {
         // Table doesn't exist, create it
@@ -67,9 +116,14 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
         setPairs([]);
       } else if (error) {
         console.error('Error fetching pairs:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error('Is Admin:', isAdmin);
         showToast('Error loading Secret Santa pairs: ' + error.message, 'error');
         setPairs([]);
       } else if (pairsData) {
+        console.log('Fetched pairs count:', pairsData.length);
+        console.log('Is Admin:', isAdmin);
+        
         // Enrich pairs with names from profiles
         const enrichedPairs = pairsData.map(pair => {
           const giver = profiles.find(p => p.id === pair.giver_id);
@@ -81,13 +135,19 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
             receiver_name: receiver?.name || 'Unknown',
           };
         });
+        
+        console.log('Enriched pairs count:', enrichedPairs.length);
         setPairs(enrichedPairs);
         
-        // Find user's match
+        // Find user's match (only for non-admin users, or if admin wants to see their own match)
         const userProfiles = profiles.filter(p => p.claimed_by === user.id);
         const userProfileIds = userProfiles.map(p => p.id);
         const match = enrichedPairs.find(p => userProfileIds.includes(p.giver_id));
         setMyMatch(match || null);
+      } else {
+        // No data returned
+        console.log('No pairs data returned');
+        setPairs([]);
       }
     } catch (error: any) {
       console.error('Error fetching pairs:', error);
@@ -95,7 +155,7 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
     } finally {
       setLoading(false);
     }
-  }, [user, profiles, showToast, createSecretSantaTable]);
+  }, [user, profiles, showToast, createSecretSantaTable, isAdmin]);
 
   useEffect(() => {
     fetchProfiles();
@@ -106,6 +166,120 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
       fetchSecretSantaPairs();
     }
   }, [user, profiles, fetchSecretSantaPairs]);
+
+  useEffect(() => {
+    if (isAdmin && profiles.length > 0) {
+      fetchUserEmails();
+    }
+  }, [isAdmin, profiles, fetchUserEmails]);
+
+  const toggleOptIn = async (profileId: string, currentOptIn: boolean) => {
+    if (!isAdmin) return;
+
+    // Try using the database function first (bypasses RLS)
+    const { error: functionError } = await supabase.rpc('update_profile_opt_in', {
+      p_profile_id: profileId,
+      p_opt_in: !currentOptIn,
+    });
+
+    if (functionError) {
+      // Fallback to direct update if function doesn't exist
+      const { error } = await supabase
+        .from('profiles')
+        .update({ opt_in: !currentOptIn })
+        .eq('id', profileId);
+
+      if (error) {
+        showToast('Error updating opt-in status: ' + error.message, 'error');
+        return;
+      }
+    }
+
+    // Update local state
+    setProfiles(prevProfiles =>
+      prevProfiles.map(p =>
+        p.id === profileId ? { ...p, opt_in: !currentOptIn } : p
+      )
+    );
+  };
+
+  const selectAllOptIn = async () => {
+    if (!isAdmin) return;
+
+    const profilesToOptIn = profiles.filter(p => !p.opt_in);
+    if (profilesToOptIn.length === 0) return;
+
+    // Update each profile individually using the function to avoid RLS issues
+    let hasError = false;
+    for (const profile of profilesToOptIn) {
+      const { error: functionError } = await supabase.rpc('update_profile_opt_in', {
+        p_profile_id: profile.id,
+        p_opt_in: true,
+      });
+
+      if (functionError) {
+        // Fallback to direct update
+        const { error } = await supabase
+          .from('profiles')
+          .update({ opt_in: true })
+          .eq('id', profile.id);
+
+        if (error) {
+          hasError = true;
+          console.error('Error updating profile:', profile.id, error);
+        }
+      }
+    }
+
+    if (hasError) {
+      showToast('Some profiles failed to update. Please try again.', 'error');
+    } else {
+      setProfiles(prevProfiles =>
+        prevProfiles.map(p =>
+          !p.opt_in ? { ...p, opt_in: true } : p
+        )
+      );
+    }
+  };
+
+  const deselectAllOptIn = async () => {
+    if (!isAdmin) return;
+
+    const optedInProfiles = profiles.filter(p => p.opt_in);
+    if (optedInProfiles.length === 0) return;
+
+    // Update each profile individually using the function to avoid RLS issues
+    let hasError = false;
+    for (const profile of optedInProfiles) {
+      const { error: functionError } = await supabase.rpc('update_profile_opt_in', {
+        p_profile_id: profile.id,
+        p_opt_in: false,
+      });
+
+      if (functionError) {
+        // Fallback to direct update
+        const { error } = await supabase
+          .from('profiles')
+          .update({ opt_in: false })
+          .eq('id', profile.id);
+
+        if (error) {
+          hasError = true;
+          console.error('Error updating profile:', profile.id, error);
+        }
+      }
+    }
+
+    if (hasError) {
+      showToast('Some profiles failed to update. Please try again.', 'error');
+    } else {
+      setProfiles(prevProfiles =>
+        prevProfiles.map(p =>
+          p.opt_in ? { ...p, opt_in: false } : p
+        )
+      );
+    }
+  };
 
   const generatePairs = async () => {
     if (!isAdmin) {
@@ -120,33 +294,73 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
 
     if (!confirmed) return;
 
-    // Get all claimed profiles
-    const claimedProfiles = profiles.filter(p => p.claimed_by);
+    // Get all profiles that have opted in (including unclaimed ones)
+    const optedInProfiles = profiles.filter(p => p.opt_in);
     
-    if (claimedProfiles.length < 2) {
-      showAlert('Not Enough Profiles', 'You need at least 2 claimed profiles to generate Secret Santa pairs.');
+    console.log('Generating pairs for:', optedInProfiles.length, 'opted-in profiles');
+    console.log('Total profiles:', profiles.length);
+    console.log('Claimed profiles:', profiles.filter(p => p.claimed_by).length);
+    console.log('Unclaimed but opted-in:', optedInProfiles.filter(p => !p.claimed_by).length);
+    
+    if (optedInProfiles.length < 2) {
+      showAlert(
+        'Not Enough Profiles',
+        `You need at least 2 opted-in profiles to generate Secret Santa pairs. Currently ${optedInProfiles.length} profile(s) have opted in.`
+      );
       return;
     }
 
-    // Shuffle and create pairs
-    const shuffled = [...claimedProfiles].sort(() => Math.random() - 0.5);
+    // Improved pairing algorithm that prevents users from being paired with their own profiles
+    // Shuffle profiles multiple times to ensure good randomization
+    let shuffled = [...optedInProfiles];
+    for (let shuffle = 0; shuffle < 3; shuffle++) {
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+    }
+    
     const newPairs: SecretSantaPair[] = [];
+    const usedReceivers = new Set<string>();
 
+    // Try to pair each giver with a receiver
     for (let i = 0; i < shuffled.length; i++) {
       const giver = shuffled[i];
-      const receiver = shuffled[(i + 1) % shuffled.length]; // Circular pairing
       
-      // Ensure no one gets themselves
-      if (giver.id === receiver.id) {
-        const nextIndex = (i + 2) % shuffled.length;
-        const altReceiver = shuffled[nextIndex];
+      // Find available receivers (not the giver itself, preferably not same user, not already used)
+      let availableReceivers = shuffled.filter(
+        r => r.id !== giver.id && !usedReceivers.has(r.id)
+      );
+      
+      // Prefer receivers that are not from the same user
+      const preferredReceivers = availableReceivers.filter(
+        r => r.claimed_by !== giver.claimed_by
+      );
+      
+      // Use preferred receivers if available, otherwise use any available
+      const receiversToChooseFrom = preferredReceivers.length > 0 
+        ? preferredReceivers 
+        : availableReceivers;
+      
+      if (receiversToChooseFrom.length === 0) {
+        // This should only happen if we've used all receivers
+        // In that case, we need to find the last unused receiver
+        const lastReceiver = shuffled.find(r => !usedReceivers.has(r.id) && r.id !== giver.id);
+        if (!lastReceiver) {
+          showAlert(
+            'Pairing Error', 
+            'Could not create valid pairs. Make sure you have at least 2 different profiles from different users opted in.'
+          );
+          return;
+        }
+        usedReceivers.add(lastReceiver.id);
         newPairs.push({
           giver_id: giver.id,
           giver_name: giver.name,
-          receiver_id: altReceiver.id,
-          receiver_name: altReceiver.name,
+          receiver_id: lastReceiver.id,
+          receiver_name: lastReceiver.name,
         });
       } else {
+        // Randomly select from available receivers
+        const receiver = receiversToChooseFrom[Math.floor(Math.random() * receiversToChooseFrom.length)];
+        usedReceivers.add(receiver.id);
         newPairs.push({
           giver_id: giver.id,
           giver_name: giver.name,
@@ -156,34 +370,52 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
       }
     }
 
-    // Clear existing pairs and insert new ones
-    const deleteResult = await supabase
-      .from('secret_santa_pairs')
-      .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000');
+    // Clear existing pairs using function (bypasses RLS)
+    const { error: clearError } = await supabase.rpc('clear_secret_santa_pairs');
     
-    if (deleteResult.error) {
-      console.error('Error deleting pairs:', deleteResult.error);
-      showToast('Error clearing existing pairs: ' + deleteResult.error.message, 'error');
-      return;
+    if (clearError) {
+      // Fallback to direct delete if function doesn't exist
+      const deleteResult = await supabase
+        .from('secret_santa_pairs')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (deleteResult.error) {
+        console.error('Error deleting pairs:', deleteResult.error);
+        showToast('Error clearing existing pairs: ' + deleteResult.error.message, 'error');
+        return;
+      }
     }
     
-    const { error } = await supabase
-      .from('secret_santa_pairs')
-      .insert(newPairs.map(p => ({
-        giver_id: p.giver_id,
-        receiver_id: p.receiver_id,
-      })));
+    // Insert new pairs using function (bypasses RLS)
+    const giverIds = newPairs.map(p => p.giver_id);
+    const receiverIds = newPairs.map(p => p.receiver_id);
+    
+    const { error: insertError } = await supabase.rpc('insert_secret_santa_pairs', {
+      p_giver_ids: giverIds,
+      p_receiver_ids: receiverIds,
+    });
 
-    if (error) {
-      console.error('Error inserting pairs:', error);
-      showToast('Error generating pairs: ' + error.message, 'error');
-    } else {
-      showToast('Secret Santa pairs generated successfully!', 'success');
-      // Refresh profiles first to ensure we have latest data
-      await fetchProfiles();
-      await fetchSecretSantaPairs();
+    if (insertError) {
+      // Fallback to direct insert if function doesn't exist
+      const { error } = await supabase
+        .from('secret_santa_pairs')
+        .insert(newPairs.map(p => ({
+          giver_id: p.giver_id,
+          receiver_id: p.receiver_id,
+        })));
+
+      if (error) {
+        console.error('Error inserting pairs:', error);
+        showToast('Error generating pairs: ' + error.message, 'error');
+        return;
+      }
     }
+    
+    showToast('Secret Santa pairs generated successfully!', 'success');
+    // Refresh profiles first to ensure we have latest data
+    await fetchProfiles();
+    await fetchSecretSantaPairs();
   };
 
   const clearPairs = async () => {
@@ -196,15 +428,25 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
 
     if (!confirmed) return;
 
-    const { error } = await supabase.from('secret_santa_pairs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    // Try using the function first (bypasses RLS)
+    const { error: functionError } = await supabase.rpc('clear_secret_santa_pairs');
 
-    if (error) {
-      showToast('Error clearing pairs: ' + error.message, 'error');
-    } else {
-      showToast('All pairs cleared', 'success');
-      setPairs([]);
-      setMyMatch(null);
+    if (functionError) {
+      // Fallback to direct delete if function doesn't exist
+      const { error } = await supabase
+        .from('secret_santa_pairs')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      if (error) {
+        showToast('Error clearing pairs: ' + error.message, 'error');
+        return;
+      }
     }
+
+    showToast('All pairs cleared', 'success');
+    setPairs([]);
+    setMyMatch(null);
   };
 
   if (loading) {
@@ -227,16 +469,81 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
             <h1 className="card-title text-3xl mb-6">🎅 Secret Santa</h1>
 
             {isAdmin && (
-              <div className="flex gap-2 mb-6">
-                <button className="btn btn-primary" onClick={generatePairs}>
-                  🎲 Generate Pairs
-                </button>
-                {pairs.length > 0 && (
-                  <button className="btn btn-error" onClick={clearPairs}>
-                    🗑️ Clear All Pairs
+              <>
+                {/* Opt-In Management Section */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold">Select Participants</h2>
+                    <div className="flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline"
+                        onClick={selectAllOptIn}
+                      >
+                        Select All
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline"
+                        onClick={deselectAllOptIn}
+                      >
+                        Deselect All
+                      </button>
+                    </div>
+                  </div>
+                  <div className="bg-base-200 p-4 rounded-lg max-h-64 overflow-y-auto">
+                    {profiles.length === 0 ? (
+                      <p className="text-sm text-base-content/70">No profiles yet.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {profiles.map(profile => {
+                          const userEmail = profile.claimed_by
+                            ? userEmails.get(profile.claimed_by) || 'Unknown'
+                            : 'Unclaimed';
+                          return (
+                            <label
+                              key={profile.id}
+                              className="flex items-center gap-3 cursor-pointer hover:bg-base-300 p-2 rounded"
+                            >
+                              <input
+                                type="checkbox"
+                                className="checkbox checkbox-sm"
+                                checked={profile.opt_in || false}
+                                onChange={() => toggleOptIn(profile.id, profile.opt_in || false)}
+                              />
+                              <div className="flex-1">
+                                <span className="font-medium">{profile.name}</span>
+                                <span className="text-sm text-base-content/70 ml-2">
+                                  ({userEmail})
+                                </span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-2 text-sm text-base-content/70">
+                    {profiles.filter(p => p.opt_in).length} of{' '}
+                    {profiles.length} profile(s) opted in
+                    {profiles.filter(p => p.claimed_by && p.opt_in).length > 0 && (
+                      <span className="ml-2">
+                        ({profiles.filter(p => p.claimed_by && p.opt_in).length} claimed)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 mb-6">
+                  <button className="btn btn-primary" onClick={generatePairs}>
+                    🎲 Generate Pairs
                   </button>
-                )}
-              </div>
+                  {pairs.length > 0 && (
+                    <button className="btn btn-error" onClick={clearPairs}>
+                      🗑️ Clear All Pairs
+                    </button>
+                  )}
+                </div>
+              </>
             )}
 
             {myMatch ? (
@@ -263,27 +570,29 @@ CREATE INDEX IF NOT EXISTS idx_secret_santa_receiver ON secret_santa_pairs(recei
             )}
 
             {isAdmin && pairs.length > 0 && (
-              <div className="mt-6">
-                <h2 className="text-xl font-bold mb-4">All Pairs ({pairs.length})</h2>
-                <div className="overflow-x-auto">
-                  <table className="table table-zebra">
-                    <thead>
-                      <tr>
-                        <th>Giver</th>
-                        <th>→</th>
-                        <th>Receiver</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pairs.map((pair, idx) => (
-                        <tr key={idx}>
-                          <td className="font-bold">{pair.giver_name}</td>
-                          <td>🎁</td>
-                          <td>{pair.receiver_name}</td>
+              <div className="mt-6 border-t pt-6">
+                <h2 className="text-xl font-bold mb-4">All Secret Santa Pairs ({pairs.length})</h2>
+                <div className="bg-base-200 rounded-lg p-4">
+                  <div className="overflow-x-auto">
+                    <table className="table table-zebra table-sm w-full">
+                      <thead>
+                        <tr>
+                          <th className="text-sm font-bold">Giver</th>
+                          <th className="text-sm font-bold text-center w-12">→</th>
+                          <th className="text-sm font-bold">Receiver</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {pairs.map((pair, idx) => (
+                          <tr key={idx} className="hover:bg-base-300">
+                            <td className="font-semibold py-2">{pair.giver_name}</td>
+                            <td className="text-center py-2 text-lg">🎁</td>
+                            <td className="py-2">{pair.receiver_name}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}

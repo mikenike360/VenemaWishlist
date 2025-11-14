@@ -19,6 +19,7 @@ export interface Profile {
   image_url: string | null;
   claimed_by: string | null;
   is_approved: boolean;
+  opt_in?: boolean;
   created_at: string;
   updated_at: string;
 }

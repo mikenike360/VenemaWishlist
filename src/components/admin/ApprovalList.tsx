@@ -145,13 +145,13 @@ const ApprovalList: React.FC = () => {
       </div>
 
       {/* Approval Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredApprovals.length === 0 ? (
-          <div className="card bg-base-200 shadow-md col-span-full" style={{ minHeight: '0', height: 'auto' }}>
-            <div className="text-center py-3" style={{ padding: '0.75rem' }}>
-              <div className="text-3xl mb-1">📋</div>
-              <h3 className="text-base font-bold mb-0.5">No approvals found</h3>
-              <p className="text-xs text-base-content/70">
+          <div className="card bg-base-200 shadow-md col-span-full">
+            <div className="card-body text-center py-6">
+              <div className="text-4xl mb-2">📋</div>
+              <h3 className="text-lg font-bold mb-1">No approvals found</h3>
+              <p className="text-sm text-base-content/70">
                 {filter !== 'all' ? `No ${filter} approvals at this time` : 'No approval requests available'}
               </p>
             </div>
@@ -160,38 +160,30 @@ const ApprovalList: React.FC = () => {
           filteredApprovals.map((approval) => (
             <div 
               key={approval.id} 
-              className={`card shadow-sm hover:shadow-md transition-all duration-200 border ${getStatusColor(approval.status)}`}
-              style={{ 
-                minHeight: '0', 
-                height: 'fit-content', 
-                display: 'flex', 
-                flexDirection: 'column',
-                padding: '0',
-                margin: '0'
-              }}
+              className={`card shadow-md hover:shadow-lg transition-all duration-200 border-2 ${getStatusColor(approval.status)}`}
             >
-              <div className="p-0.5" style={{ padding: '0.125rem', lineHeight: '1.1', minHeight: '0', flex: '0 0 auto' }}>
-                <div className="flex items-start justify-between gap-1" style={{ alignItems: 'flex-start' }}>
+              <div className="card-body p-4">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <h3 className="text-[10px] font-bold truncate">{approval.email}</h3>
-                      <span className={`badge badge-xs gap-0.5 ${
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <h3 className="text-base font-bold truncate">{approval.email}</h3>
+                      <span className={`badge badge-sm gap-1 ${
                         approval.status === 'pending' ? 'badge-warning' :
                         approval.status === 'approved' ? 'badge-success' :
                         'badge-error'
                       }`}>
                         {approval.status === 'pending' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                           </svg>
                         )}
                         {approval.status === 'approved' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                         )}
                         {approval.status === 'rejected' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                           </svg>
                         )}
@@ -199,15 +191,15 @@ const ApprovalList: React.FC = () => {
                       </span>
                     </div>
                     {(approval.requested_name || approval.created_at) && (
-                      <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         {approval.requested_name && (
                           <>
-                            <span className="text-[9px] text-base-content/80">{approval.requested_name}</span>
-                            {approval.created_at && <span className="text-[9px] text-base-content/60">•</span>}
+                            <span className="text-sm text-base-content/80 font-medium">{approval.requested_name}</span>
+                            {approval.created_at && <span className="text-sm text-base-content/60">•</span>}
                           </>
                         )}
                         {approval.created_at && (
-                          <span className="text-[9px] text-base-content/60">
+                          <span className="text-sm text-base-content/60">
                             {new Date(approval.created_at).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric',
@@ -219,33 +211,33 @@ const ApprovalList: React.FC = () => {
                       </div>
                     )}
                     {approval.admin_notes && (
-                      <div className="mt-0.5 p-0.5 bg-base-300/50 rounded border border-base-300">
-                        <p className="text-[9px] text-base-content/70">{approval.admin_notes}</p>
+                      <div className="mt-3 p-3 bg-base-300/50 rounded-lg border border-base-300">
+                        <p className="text-sm text-base-content/70">{approval.admin_notes}</p>
                       </div>
                     )}
                   </div>
                   {approval.status === 'pending' && (
-                    <div className="flex gap-0.5 flex-shrink-0 flex-col">
+                    <div className="flex gap-2 flex-shrink-0 flex-col">
                       <button
-                        className="btn btn-success btn-xs gap-0.5 px-1.5 h-5 min-h-0 text-[9px]"
+                        className="btn btn-success btn-sm gap-1"
                         onClick={async () => {
                           const notes = await showPrompt('Admin Notes', 'Admin notes (optional):', '');
                           handleApproval(approval.id, 'approved', notes || undefined);
                         }}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                         Approve
                       </button>
                       <button
-                        className="btn btn-error btn-xs gap-0.5 px-1.5 h-5 min-h-0 text-[9px]"
+                        className="btn btn-error btn-sm gap-1"
                         onClick={async () => {
                           const notes = await showPrompt('Rejection Reason', 'Rejection reason (optional):', '');
                           handleApproval(approval.id, 'rejected', notes || undefined);
                         }}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                         Reject

@@ -39,8 +39,8 @@ header h1 {
   animation: fadeIn 0.5s ease-in;
 }
 
-/* Card container */
-.card {
+/* Card container - scoped to wishlist cards only */
+.wishlist-grid .card {
   width: 100%; /* Full width of the grid cell */
   aspect-ratio: 2 / 3; /* Ensures consistent height relative to width */
   perspective: 1000px; /* Creates a 3D space for the flip */
@@ -52,8 +52,8 @@ header h1 {
   transition: all 0.3s ease;
 }
 
-/* Front and back faces of the card */
-.card-front, .card-back {
+/* Front and back faces of the card - scoped to wishlist cards */
+.wishlist-grid .card-front, .wishlist-grid .card-back {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -77,12 +77,12 @@ header h1 {
   /* Background color now handled by bg-success class */
 }
 
-/* Flip the card when unwrapped */
-.card.unwrapped .card-front {
+/* Flip the card when unwrapped - scoped to wishlist cards */
+.wishlist-grid .card.unwrapped .card-front {
   transform: rotateY(180deg); /* Flip front out of view */
 }
 
-.card.unwrapped .card-back {
+.wishlist-grid .card.unwrapped .card-back {
   transform: rotateY(0deg); /* Flip back into view */
 }
 
@@ -194,7 +194,7 @@ header h1 {
     padding: 12px;
   }
 
-  .card {
+  .wishlist-grid .card {
     aspect-ratio: 2 / 3; /* Maintain a proportional card size */
     border-radius: 8px;
   }
@@ -245,7 +245,7 @@ header h1 {
     page-break-inside: avoid;
   }
 
-  .card {
+  .wishlist-grid .card {
     page-break-inside: avoid;
     break-inside: avoid;
   }

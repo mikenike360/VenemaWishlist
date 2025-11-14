@@ -202,45 +202,45 @@ const ProfileManagement: React.FC = () => {
       </div>
 
       {/* User Profiles List */}
-      <div className="space-y-1.5">
+      <div className="space-y-4">
         {filteredUserProfiles.length === 0 ? (
-          <div className="card bg-base-200 shadow-md" style={{ minHeight: 'auto' }}>
-            <div className="text-center py-3" style={{ padding: '0.75rem' }}>
-              <div className="text-3xl mb-1">🔍</div>
-              <h3 className="text-base font-bold mb-0.5">No profiles found</h3>
-              <p className="text-xs text-base-content/70">
+          <div className="card bg-base-200 shadow-md">
+            <div className="card-body text-center py-6">
+              <div className="text-4xl mb-2">🔍</div>
+              <h3 className="text-lg font-bold mb-1">No profiles found</h3>
+              <p className="text-sm text-base-content/70">
                 {searchQuery ? 'Try adjusting your search terms' : 'No profiles available'}
               </p>
             </div>
           </div>
         ) : (
           filteredUserProfiles.map((userProfile) => (
-            <div key={userProfile.id} className="card bg-gradient-to-br from-base-200 to-base-300 shadow-md border border-base-300" style={{ minHeight: 'auto' }}>
-              <div className="p-1.5" style={{ padding: '0.375rem' }}>
+            <div key={userProfile.id} className="card bg-gradient-to-br from-base-200 to-base-300 shadow-lg border-2 border-base-300">
+              <div className="card-body p-4">
                 {/* User Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 mb-1 pb-1 border-b border-base-300">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b-2 border-base-300">
+                  <div className="flex items-center gap-3">
                     <div className="avatar placeholder">
-                      <div className="bg-primary text-primary-content rounded-full w-6">
-                        <span className="text-[10px] font-bold">
+                      <div className="bg-primary text-primary-content rounded-full w-12">
+                        <span className="text-lg font-bold">
                           {userProfile.email.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold flex items-center gap-1">
+                      <h3 className="text-base font-bold flex items-center gap-2">
                         {userProfile.email}
                         {userProfile.id === 'unclaimed' && (
-                          <span className="badge badge-warning badge-xs gap-0.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                          <span className="badge badge-warning badge-sm gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
                             Unclaimed
                           </span>
                         )}
                       </h3>
-                      <p className="text-[10px] text-base-content/70 mt-0.5 flex items-center gap-0.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                      <p className="text-sm text-base-content/70 mt-1 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                           <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
                         {userProfile.profiles.length} {userProfile.profiles.length === 1 ? 'profile' : 'profiles'}
@@ -251,30 +251,29 @@ const ProfileManagement: React.FC = () => {
 
                 {/* Profiles Grid */}
                 <div 
-                  className="grid gap-1"
+                  className="grid gap-3"
                   style={{
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(140px, 100%), 1fr))'
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))'
                   }}
                 >
                   {userProfile.profiles.map((profile) => (
                     <div
                       key={profile.id}
-                      className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-200 border border-base-300 hover:border-primary/50"
-                      style={{ minHeight: 'auto' }}
+                      className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-200 border-2 border-base-300 hover:border-primary/50"
                     >
-                      <div className="p-1.5" style={{ padding: '0.375rem' }}>
-                        <div className="flex justify-between items-start gap-1">
+                      <div className="card-body p-4">
+                        <div className="flex justify-between items-start gap-2">
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-xs mb-1 truncate">{profile.name}</h4>
+                            <h4 className="font-bold text-base mb-2 truncate">{profile.name}</h4>
                             {profile.wishlist_link && (
                               <a
                                 href={profile.wishlist_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="btn btn-xs btn-outline btn-primary gap-0.5 mt-1 w-full text-[10px] px-1 h-5 min-h-0"
+                                className="btn btn-sm btn-outline btn-primary gap-1 mt-2 w-full"
                                 title="View Wishlist"
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                                   <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                                 </svg>
@@ -282,28 +281,28 @@ const ProfileManagement: React.FC = () => {
                               </a>
                             )}
                             {!profile.wishlist_link && (
-                              <div className="badge badge-ghost badge-xs mt-1 text-[10px] h-4">No link</div>
+                              <div className="badge badge-ghost badge-sm mt-2">No link</div>
                             )}
                           </div>
                           <div className="flex-shrink-0">
                             {userProfile.id !== 'unclaimed' && (
                               <button
-                                className="btn btn-xs btn-error btn-circle h-5 w-5 min-h-0 p-0"
+                                className="btn btn-sm btn-error btn-circle"
                                 onClick={() => handleUnlinkProfile(profile.id, profile.name)}
                                 title="Unlink profile"
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                 </svg>
                               </button>
                             )}
                             {userProfile.id === 'unclaimed' && (
                               <button
-                                className="btn btn-xs btn-success btn-circle h-5 w-5 min-h-0 p-0"
+                                className="btn btn-sm btn-success btn-circle"
                                 onClick={() => handleLinkProfile(profile.id, profile.name)}
                                 title="Link profile to user"
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                                 </svg>
                               </button>
