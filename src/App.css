@@ -108,15 +108,22 @@ header h1 {
 
 @media (max-width: 768px) {
   .user-image {
-    width: 65%;
-    max-width: 90px;
+    width: 75%;
+    max-width: 110px;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-image {
+    width: 70%;
+    max-width: 100px;
   }
 }
 
 @media (max-width: 480px) {
   .user-image {
-    width: 60%;
-    max-width: 75px;
+    width: 65%;
+    max-width: 90px;
   }
 }
 
@@ -206,7 +213,8 @@ header h1 {
 /* Media query for smaller screens */
 @media (max-width: 768px) {
   .wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Smaller columns */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Larger min to prevent 4 columns */
+    max-width: 100%;
     gap: 12px; /* Reduce spacing between cards */
     padding: 10px;
   }
@@ -223,11 +231,19 @@ header h1 {
   /* User image sizes are handled in the main .user-image rule with media queries */
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Prevent 4 columns on medium mobile */
     gap: 10px;
     padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Smaller for very small screens */
+    gap: 8px;
+    padding: 6px;
   }
   
   .wishlist-grid .card {
