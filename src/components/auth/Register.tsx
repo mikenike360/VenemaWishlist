@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import Navigation from '../Navigation';
+import Header from '../Header';
+import Footer from '../Footer';
 import { useToast } from '../Toast';
+import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +18,56 @@ const Register: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
   const { showToast } = useToast();
+
+  // Music and theme state
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [volume, setVolume] = useState<number>(0.5);
+  const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
+  const [theme, setTheme] = useState<string>(() => {
+    const savedTheme = localStorage.getItem('wishlist-theme');
+    return savedTheme || 'winter';
+  });
+  const [showThemeList, setShowThemeList] = useState<boolean>(false);
+
+  const themes = [
+    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
+    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
+    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
+    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
+    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
+  ];
+
+  // Effect to handle music play/pause and volume
+  useEffect(() => {
+    const audio = audioRef.current;
+    audio.volume = volume;
+    if (isPlaying) {
+      audio.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
+      audio.loop = true;
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, volume]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    };
+  }, []);
+
+  // Update theme and persist to localStorage
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wishlist-theme', theme);
+  }, [theme]);
+
+  const toggleMusic = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   // Fetch available profile names
   const [availableNames, setAvailableNames] = useState<string[]>([]);
@@ -71,6 +124,18 @@ const Register: React.FC = () => {
   if (success) {
     return (
       <div className="min-h-screen bg-base-100">
+        <Header
+          isPlaying={isPlaying}
+          volume={volume}
+          toggleMusic={toggleMusic}
+          setVolume={setVolume}
+          theme={theme}
+          themes={themes}
+          setTheme={setTheme}
+          showThemeList={showThemeList}
+          setShowThemeList={setShowThemeList}
+          showToast={showToast}
+        />
         <Navigation />
         <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-2 sm:px-4 py-4">
           <div className="card w-full max-w-md bg-base-100 shadow-xl">
@@ -87,12 +152,25 @@ const Register: React.FC = () => {
           </div>
         </div>
       </div>
-      </div>
+      <Footer />
+    </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-base-100">
+      <Header
+        isPlaying={isPlaying}
+        volume={volume}
+        toggleMusic={toggleMusic}
+        setVolume={setVolume}
+        theme={theme}
+        themes={themes}
+        setTheme={setTheme}
+        showThemeList={showThemeList}
+        setShowThemeList={setShowThemeList}
+        showToast={showToast}
+      />
       <Navigation />
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-2 sm:px-4 py-4">
         <div className="card w-full max-w-md bg-base-100 shadow-xl">
@@ -197,6 +275,7 @@ const Register: React.FC = () => {
         </div>
       </div>
       </div>
+      <Footer />
     </div>
   );
 };

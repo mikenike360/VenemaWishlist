@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../Navigation';
+import Header from '../Header';
+import Footer from '../Footer';
 import LoadingSkeleton from '../LoadingSkeleton';
 import { useToast } from '../Toast';
 import { useModal } from '../Modal';
 import { Profile } from '../../types';
+import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
 import michaelImage from '../../assets/images/michael.jpg';
 import amandaImage from '../../assets/images/amanda.jpg';
 import joeyImage from '../../assets/images/joey.jpg';
@@ -129,6 +132,56 @@ const ProfileClaim: React.FC = () => {
     status: string | null;
     requestedName: string | null;
   }>({ status: null, requestedName: null });
+
+  // Music and theme state
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [volume, setVolume] = useState<number>(0.5);
+  const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
+  const [theme, setTheme] = useState<string>(() => {
+    const savedTheme = localStorage.getItem('wishlist-theme');
+    return savedTheme || 'winter';
+  });
+  const [showThemeList, setShowThemeList] = useState<boolean>(false);
+
+  const themes = [
+    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
+    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
+    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
+    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
+    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
+  ];
+
+  // Effect to handle music play/pause and volume
+  useEffect(() => {
+    const audio = audioRef.current;
+    audio.volume = volume;
+    if (isPlaying) {
+      audio.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
+      audio.loop = true;
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, volume]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    };
+  }, []);
+
+  // Update theme and persist to localStorage
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wishlist-theme', theme);
+  }, [theme]);
+
+  const toggleMusic = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   const checkApprovalStatus = useCallback(async () => {
     if (!user) return;
@@ -325,6 +378,18 @@ const ProfileClaim: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-base-100">
+        <Header
+          isPlaying={isPlaying}
+          volume={volume}
+          toggleMusic={toggleMusic}
+          setVolume={setVolume}
+          theme={theme}
+          themes={themes}
+          setTheme={setTheme}
+          showThemeList={showThemeList}
+          setShowThemeList={setShowThemeList}
+          showToast={showToast}
+        />
         <Navigation />
         <div className="container mx-auto max-w-6xl py-8 px-4">
           <div className="text-center mb-8">
@@ -340,6 +405,18 @@ const ProfileClaim: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-base-100">
+      <Header
+        isPlaying={isPlaying}
+        volume={volume}
+        toggleMusic={toggleMusic}
+        setVolume={setVolume}
+        theme={theme}
+        themes={themes}
+        setTheme={setTheme}
+        showThemeList={showThemeList}
+        setShowThemeList={setShowThemeList}
+        showToast={showToast}
+      />
       <Navigation />
       <div className="container mx-auto max-w-6xl py-8 px-4">
         {/* Header Section */}
@@ -405,15 +482,15 @@ const ProfileClaim: React.FC = () => {
         {claimedProfiles.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-base-content">Your Claimed Profiles ({claimedProfiles.length})</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-6 mb-6">
               {claimedProfiles.map((profile) => (
                 <div 
                   key={profile.id} 
                   className="card bg-base-100 shadow-xl ring-2 ring-success"
                 >
-                  <div className="card-body items-center text-center p-4 sm:p-6">
-                    <div className="avatar mb-3 sm:mb-4 ring ring-success ring-offset-2">
-                      <div className="w-16 sm:w-20 md:w-24 rounded-full overflow-hidden">
+                  <div className="card-body items-center text-center p-2 sm:p-4 md:p-6">
+                    <div className="avatar mb-1.5 sm:mb-3 md:mb-4 ring ring-success ring-offset-1 sm:ring-offset-2">
+                      <div className="w-12 sm:w-20 md:w-24 rounded-full overflow-hidden">
                         <img 
                           src={profile.image_url || fallbackImages[profile.name] || ''} 
                           alt={profile.name}
@@ -425,48 +502,48 @@ const ProfileClaim: React.FC = () => {
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
-                                parent.className = 'w-full h-full rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-xl sm:text-2xl md:text-3xl font-bold';
+                                parent.className = 'w-full h-full rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-base sm:text-2xl md:text-3xl font-bold';
                                 parent.textContent = profile.name.charAt(0);
                               }
                             }
                           }}
                         />
                         {!profile.image_url && !fallbackImages[profile.name] && (
-                          <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-xl sm:text-2xl md:text-3xl font-bold">
+                          <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-base sm:text-2xl md:text-3xl font-bold">
                             {profile.name.charAt(0)}
                           </div>
                         )}
                       </div>
                     </div>
-                    <h2 className="card-title text-base sm:text-lg md:text-xl font-bold mb-2 line-clamp-2 min-h-[2.5rem]">
+                    <h2 className="card-title text-xs sm:text-base md:text-lg lg:text-xl font-bold mb-1 sm:mb-1.5 md:mb-2 line-clamp-2 min-h-[1.75rem] sm:min-h-[2rem] md:min-h-[2.5rem]">
                       {profile.name}
                     </h2>
-                    <div className="badge badge-success gap-2 mb-3 sm:mb-4 text-xs sm:text-sm">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-3 h-3 sm:w-4 sm:h-4 stroke-current">
+                    <div className="badge badge-success gap-0.5 sm:gap-2 mb-1.5 sm:mb-3 md:mb-4 text-[9px] sm:text-xs md:text-sm py-0.5 sm:py-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 stroke-current">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                       </svg>
                       <span className="hidden sm:inline">Claimed</span>
                     </div>
                     <div className="card-actions w-full gap-1 sm:gap-2">
                       <button
-                        className="btn btn-primary flex-1 btn-sm sm:btn-md text-xs sm:text-sm"
+                        className="btn btn-primary flex-1 btn-xs sm:btn-sm md:btn-md text-[9px] sm:text-xs md:text-sm py-1 sm:py-1.5"
                         onClick={() => navigate(`/profile?profileId=${profile.id}`)}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         <span className="hidden sm:inline">Edit</span>
                       </button>
                       <button
-                        className="btn btn-error flex-1 btn-sm sm:btn-md text-xs sm:text-sm"
+                        className="btn btn-error flex-1 btn-xs sm:btn-sm md:btn-md text-[9px] sm:text-xs md:text-sm py-1 sm:py-1.5"
                         onClick={() => handleUnclaim(profile.id)}
                         disabled={unclaiming === profile.id}
                       >
                         {unclaiming === profile.id ? (
-                          <span className="loading loading-spinner loading-sm"></span>
+                          <span className="loading loading-spinner loading-xs sm:loading-sm"></span>
                         ) : (
                           <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             <span className="hidden sm:inline">Unclaim</span>
@@ -499,7 +576,7 @@ const ProfileClaim: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
               {availableProfilesFiltered.map((profile) => {
                 const isClaimedByUser = profile.claimed_by === user?.id;
                 const isClaimedByOther = profile.claimed_by !== null && profile.claimed_by !== user?.id;
@@ -510,20 +587,20 @@ const ProfileClaim: React.FC = () => {
                   key={profile.id} 
                   className={`card bg-base-100 shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
                     canClaim
-                      ? 'ring-2 ring-success ring-offset-2' 
+                      ? 'ring-2 ring-success ring-offset-1 sm:ring-offset-2' 
                       : isClaimedByOther
                       ? 'opacity-60'
                       : ''
                   }`}
                 >
-                  <div className="card-body items-center text-center p-4 sm:p-6">
+                  <div className="card-body items-center text-center p-2 sm:p-4 md:p-6">
                     {/* Avatar */}
-                    <div className={`avatar mb-3 sm:mb-4 ${
+                    <div className={`avatar mb-1.5 sm:mb-3 md:mb-4 ${
                       canClaim
-                        ? 'ring ring-success ring-offset-2' 
+                        ? 'ring ring-success ring-offset-1 sm:ring-offset-2' 
                         : ''
                     }`}>
-                      <div className="w-16 sm:w-20 md:w-24 rounded-full overflow-hidden">
+                      <div className="w-12 sm:w-20 md:w-24 rounded-full overflow-hidden">
                         <img 
                           src={profile.image_url || fallbackImages[profile.name] || ''} 
                           alt={profile.name}
@@ -535,14 +612,14 @@ const ProfileClaim: React.FC = () => {
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
-                                parent.className = 'w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xl sm:text-2xl md:text-3xl font-bold';
+                                parent.className = 'w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-base sm:text-2xl md:text-3xl font-bold';
                                 parent.textContent = profile.name.charAt(0);
                               }
                             }
                           }}
                         />
                         {!profile.image_url && !fallbackImages[profile.name] && (
-                          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xl sm:text-2xl md:text-3xl font-bold">
+                          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-base sm:text-2xl md:text-3xl font-bold">
                             {profile.name.charAt(0)}
                           </div>
                         )}
@@ -550,23 +627,23 @@ const ProfileClaim: React.FC = () => {
                     </div>
 
                     {/* Name */}
-                    <h2 className="card-title text-base sm:text-lg md:text-xl font-bold mb-2 line-clamp-2 min-h-[2.5rem]">
+                    <h2 className="card-title text-xs sm:text-base md:text-lg lg:text-xl font-bold mb-1 sm:mb-1.5 md:mb-2 line-clamp-2 min-h-[1.75rem] sm:min-h-[2rem] md:min-h-[2.5rem]">
                       {profile.name}
                     </h2>
 
                     {/* Status Badges */}
-                    <div className="flex flex-wrap gap-1 sm:gap-2 justify-center mb-3 sm:mb-4">
+                    <div className="flex flex-wrap gap-0.5 sm:gap-2 justify-center mb-1.5 sm:mb-3 md:mb-4">
                       {isClaimedByOther && (
-                        <div className="badge badge-neutral gap-1 sm:gap-2 text-xs sm:text-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-3 h-3 sm:w-4 sm:h-4 stroke-current">
+                        <div className="badge badge-neutral gap-0.5 sm:gap-2 text-[9px] sm:text-xs md:text-sm py-0.5 sm:py-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 stroke-current">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                           </svg>
                           <span className="hidden sm:inline">Claimed</span>
                         </div>
                       )}
                       {canClaim && (
-                        <div className="badge badge-info gap-1 sm:gap-2 text-xs sm:text-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-3 h-3 sm:w-4 sm:h-4 stroke-current">
+                        <div className="badge badge-info gap-0.5 sm:gap-2 text-[9px] sm:text-xs md:text-sm py-0.5 sm:py-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 stroke-current">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
                           </svg>
                           <span className="hidden sm:inline">Available</span>
@@ -577,7 +654,7 @@ const ProfileClaim: React.FC = () => {
                     {/* Claim Button */}
                     <div className="card-actions w-full">
                       <button
-                        className={`btn w-full btn-sm sm:btn-md text-xs sm:text-sm ${
+                        className={`btn w-full btn-xs sm:btn-sm md:btn-md text-[9px] sm:text-xs md:text-sm py-1 sm:py-1.5 ${
                           canClaim 
                             ? 'btn-success' 
                             : 'btn-disabled'
@@ -587,12 +664,12 @@ const ProfileClaim: React.FC = () => {
                       >
                         {claiming ? (
                           <>
-                            <span className="loading loading-spinner loading-sm"></span>
+                            <span className="loading loading-spinner loading-xs sm:loading-sm"></span>
                             <span className="hidden sm:inline">Claiming...</span>
                           </>
                         ) : canClaim ? (
                           <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                             </svg>
                             <span className="hidden sm:inline">Claim Profile</span>
@@ -600,14 +677,14 @@ const ProfileClaim: React.FC = () => {
                           </>
                         ) : isClaimedByOther ? (
                           <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             <span className="hidden sm:inline">Already Taken</span>
                             <span className="sm:hidden">Taken</span>
                           </>
                         ) : (
-                          <span className="text-xs sm:text-sm">Not Available</span>
+                          <span className="text-[9px] sm:text-xs md:text-sm">Not Available</span>
                         )}
                       </button>
                     </div>
@@ -619,6 +696,7 @@ const ProfileClaim: React.FC = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

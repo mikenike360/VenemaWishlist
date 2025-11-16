@@ -22,7 +22,7 @@ export const LampPost: React.FC<LampPostProps> = ({ position }) => {
   return (
     <group ref={lampRef} position={position}>
       {/* Pole */}
-      <mesh position={[0, 1, 0]} castShadow>
+      <mesh position={[0, 1, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.05, 0.05, 2, 12]} />
         <meshStandardMaterial color="#4A4A4A" roughness={0.4} metalness={0.4} />
       </mesh>

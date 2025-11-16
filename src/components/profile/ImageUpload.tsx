@@ -64,30 +64,27 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onUploadComp
   };
 
   return (
-    <div className="form-control">
-      <label className="label">
-        <span className="label-text">Profile Picture</span>
-      </label>
+    <div className="form-control w-full">
       {preview && (
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4 flex justify-center sm:justify-start">
           <img
             src={preview}
             alt="Preview"
-            className="w-32 h-32 rounded-full object-cover border-4 border-base-300"
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-2 sm:border-4 border-base-300"
           />
         </div>
       )}
       <input
         type="file"
         accept="image/*"
-        className="file-input file-input-bordered w-full"
+        className="file-input file-input-bordered file-input-xs sm:file-input-sm md:file-input-md w-full text-xs sm:text-sm"
         onChange={handleFileUpload}
         disabled={uploading}
       />
       {uploading && (
-        <div className="mt-2">
-          <span className="loading loading-spinner loading-sm"></span>
-          <span className="ml-2 text-sm">Uploading...</span>
+        <div className="mt-2 flex items-center">
+          <span className="loading loading-spinner loading-xs sm:loading-sm"></span>
+          <span className="ml-2 text-xs sm:text-sm">Uploading...</span>
         </div>
       )}
     </div>

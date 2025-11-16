@@ -6,7 +6,7 @@ export const CameraControls: React.FC = () => {
     <OrbitControls
       enableZoom={false}
       enablePan={false}
-      enableRotate={false}
+      enableRotate={true}
       minDistance={8}
       maxDistance={50}
       minPolarAngle={Math.PI / 12}

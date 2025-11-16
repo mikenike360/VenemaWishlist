@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 import WishlistCard from './components/WishlistCard';
 import CopyLinkButton from './components/CopyLinkButton';
 import ExportWishlist from './components/ExportWishlist';
@@ -115,10 +116,11 @@ const WishlistPage: React.FC = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [shuffledUsers, setShuffledUsers] = useState<User[]>([]);
-  const [theme, setTheme] = useState<string>('winter');
+  const [theme, setTheme] = useState<string>(() => {
+    const savedTheme = localStorage.getItem('wishlist-theme');
+    return savedTheme || 'winter';
+  });
   const [showThemeList, setShowThemeList] = useState<boolean>(false);
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const themeSelectorRef = useRef<HTMLDivElement>(null);
 
   // Check if user has claimed any profiles
   const checkUserProfile = useCallback(async () => {
@@ -186,27 +188,11 @@ const WishlistPage: React.FC = () => {
     };
   }, []);
 
-  // Update theme
+  // Update theme and persist to localStorage
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wishlist-theme', theme);
   }, [theme]);
-
-  // Handle clicks outside theme selector
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (themeSelectorRef.current && !themeSelectorRef.current.contains(event.target as Node)) {
-        setShowThemeList(false);
-      }
-    };
-
-    if (showThemeList) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showThemeList]);
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
@@ -252,14 +238,25 @@ const WishlistPage: React.FC = () => {
   return (
     <div className="App min-h-screen bg-base-100">
       <Snowfall />
-      <Header />
+      <Header 
+        isPlaying={isPlaying}
+        volume={volume}
+        toggleMusic={toggleMusic}
+        setVolume={setVolume}
+        theme={theme}
+        themes={themes}
+        setTheme={setTheme}
+        showThemeList={showThemeList}
+        setShowThemeList={setShowThemeList}
+        showToast={showToast}
+      />
       <Navigation />
       
       {/* Controls Section */}
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
         <div className="flex flex-col gap-4 sm:gap-6 mb-4 sm:mb-6 no-print">
           {/* Search Input */}
-          <div className="form-control w-full sm:max-w-md mx-auto">
+          <div className="form-control w-full max-w-xs sm:max-w-md mx-auto">
             <label className="label py-1 sm:py-2">
               <span className="label-text font-bold text-sm sm:text-base">🔍 Search Family Members</span>
             </label>
@@ -272,133 +269,115 @@ const WishlistPage: React.FC = () => {
             />
           </div>
 
-          {/* Collapsible Menu Button */}
-          <div className="flex justify-center">
-            <div className="collapse collapse-arrow bg-base-200 shadow-md rounded-lg w-full sm:max-w-2xl">
-              <input 
-                type="checkbox" 
-                checked={menuOpen}
-                onChange={(e) => setMenuOpen(e.target.checked)}
-              />
-              <div className="collapse-title text-lg font-semibold flex items-center justify-center gap-2">
-                <span>⚙️</span>
-                <span>Actions & Settings</span>
-              </div>
-              <div className="collapse-content">
-                <div className="flex flex-col gap-4 pt-2">
-                  {/* Main Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-                    {/* Flip All Button */}
-                    <button 
-                      className={`btn btn-sm sm:btn-md flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all ${allFlipped ? 'btn-secondary' : 'btn-primary'} gap-2 font-semibold`}
-                      onClick={() => {
-                        toggleAllFlipped();
-                        setMenuOpen(false);
-                      }}
-                    >
-                      <span className="text-lg">{allFlipped ? '🎁' : '✨'}</span>
-                      <span>{allFlipped ? 'Reset Presents!' : 'Open Presents!'}</span>
-                    </button>
+          {/* Desktop Actions - Show buttons directly */}
+          <div className="hidden sm:flex flex-wrap gap-3 justify-center items-center mb-4 sm:mb-6 no-print">
+            {/* Flip All Button */}
+            <button 
+              className={`btn btn-sm md:btn-md shadow-md hover:shadow-lg transition-all ${allFlipped ? 'btn-secondary' : 'btn-primary'} gap-2 font-semibold`}
+              onClick={toggleAllFlipped}
+            >
+              <span className="text-lg">{allFlipped ? '🎁' : '✨'}</span>
+              <span>{allFlipped ? 'Reset Presents!' : 'Open Presents!'}</span>
+            </button>
 
-                    {/* Shuffle Button */}
-                    <button 
-                      className="btn btn-sm sm:btn-md btn-accent gap-2 flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all font-semibold"
-                      onClick={() => {
-                        handleShuffle();
-                        setMenuOpen(false);
-                      }}
-                    >
-                      <span className="text-lg">🔀</span>
-                      <span>Shuffle Cards</span>
-                    </button>
+            {/* Shuffle Button */}
+            <button 
+              className="btn btn-sm md:btn-md btn-accent gap-2 shadow-md hover:shadow-lg transition-all font-semibold"
+              onClick={handleShuffle}
+            >
+              <span className="text-lg">🔀</span>
+              <span>Shuffle Cards</span>
+            </button>
 
-                    {/* Theme Selector */}
-                    <div className="relative flex-1 sm:flex-none" ref={themeSelectorRef}>
-                      <button 
-                        className="btn btn-sm sm:btn-md btn-outline gap-2 w-full sm:w-auto shadow-md hover:shadow-lg transition-all font-semibold"
-                        onClick={() => setShowThemeList(true)}
-                      >
-                        <span className="text-lg">🎨</span>
-                        <span>Theme</span>
-                      </button>
-                      {showThemeList && (
-                        <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 z-50 animate-in fade-in slide-in-from-top-2">
-                          <div className="card bg-base-100 shadow-xl border-2 border-base-300">
-                            <div className="card-body p-2 max-h-96 overflow-y-auto w-full sm:w-56">
-                              <ul className="menu menu-vertical w-full">
-                                {themes.map((t) => (
-                                  <li key={t}>
-                                    <button
-                                      onClick={() => {
-                                        setTheme(t);
-                                        setShowThemeList(false);
-                                        showToast(`Theme changed to ${t.charAt(0).toUpperCase() + t.slice(1)}`, 'info');
-                                      }}
-                                      className={`${theme === t ? 'active bg-primary text-primary-content' : 'hover:bg-base-200'} flex items-center justify-between text-sm rounded-lg transition-all`}
-                                    >
-                                      <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
-                                      {theme === t && (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                      )}
-                                    </button>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+            {/* Copy Link Button */}
+            <CopyLinkButton 
+              url={window.location.href}
+              label="Copy Link"
+              className="btn-sm md:btn-md shadow-md hover:shadow-lg transition-all"
+            />
 
-                  {/* Secondary Actions Row */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-                    {/* Music Controls */}
-                    <div className="card bg-base-100 shadow-md p-3 sm:p-4 flex-1 sm:flex-none sm:min-w-[200px]">
-                      <div className="flex flex-col gap-2">
-                        <button 
-                          className={`btn btn-sm sm:btn-md w-full ${isPlaying ? 'btn-error' : 'btn-success'} gap-2 shadow-md hover:shadow-lg transition-all font-semibold`}
-                          onClick={toggleMusic}
-                        >
-                          <span className="text-lg">{isPlaying ? '🔇' : '🔊'}</span>
-                          <span>{isPlaying ? 'Stop Music' : 'Play Music'}</span>
-                        </button>
-                        {isPlaying && (
-                          <div className="flex items-center gap-2 bg-base-200 rounded-lg p-2">
-                            <span className="text-sm">🔉</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              value={volume}
-                              onChange={(e) => setVolume(parseFloat(e.target.value))}
-                              className="range range-xs range-warning flex-1"
-                            />
-                            <span className="text-xs font-semibold w-10">{Math.round(volume * 100)}%</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+            {/* Export Wishlist */}
+            <ExportWishlist profiles={profiles} className="" />
+          </div>
 
-                    {/* Copy Link Button */}
-                    <div className="flex-1 sm:flex-none">
-                      <CopyLinkButton 
-                        url={window.location.href}
-                        label="Copy Link"
-                        className="btn-sm sm:btn-md w-full sm:w-auto shadow-md hover:shadow-lg transition-all"
-                      />
-                    </div>
+          {/* Mobile Actions - Icon-only buttons */}
+          <div className="flex sm:hidden justify-center gap-2 mb-4 no-print">
+            {/* Flip All Button */}
+            <button 
+              className={`btn btn-circle btn-sm ${allFlipped ? 'btn-secondary' : 'btn-primary'} shadow-md hover:shadow-lg transition-all`}
+              onClick={toggleAllFlipped}
+              aria-label={allFlipped ? 'Reset Presents' : 'Open Presents'}
+            >
+              <span className="text-lg">{allFlipped ? '🎁' : '✨'}</span>
+            </button>
 
-                    {/* Export Wishlist */}
-                    <div className="flex-1 sm:flex-none w-full sm:w-auto">
-                      <ExportWishlist profiles={profiles} className="w-full sm:w-auto" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Shuffle Button */}
+            <button 
+              className="btn btn-circle btn-sm btn-accent shadow-md hover:shadow-lg transition-all"
+              onClick={handleShuffle}
+              aria-label="Shuffle Cards"
+            >
+              <span className="text-lg">🔀</span>
+            </button>
+
+            {/* Copy Link Button - Icon only */}
+            <button
+              className="btn btn-circle btn-sm btn-outline shadow-md hover:shadow-lg transition-all"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(window.location.href);
+                  showToast('Link copied to clipboard!', 'success');
+                } catch (err) {
+                  showToast('Failed to copy link', 'error');
+                }
+              }}
+              aria-label="Copy Link"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+
+            {/* Export Wishlist - Icon only with dropdown */}
+            <div className="dropdown dropdown-end">
+              <label tabIndex={0} className="btn btn-circle btn-sm btn-outline shadow-md hover:shadow-lg transition-all" aria-label="Export Wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </label>
+              <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50 mt-2">
+                <li>
+                  <button onClick={() => window.print()}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print/PDF
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => {
+                    const text = profiles
+                      .map((profile) => {
+                        return `${profile.name}\n${profile.wishlist_link || 'No wishlist link'}\n${'='.repeat(50)}`;
+                      })
+                      .join('\n\n');
+                    const blob = new Blob([text], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'wishlist-export.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Export as Text
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -429,6 +408,7 @@ const WishlistPage: React.FC = () => {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 };

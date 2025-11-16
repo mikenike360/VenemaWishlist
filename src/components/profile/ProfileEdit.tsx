@@ -1,14 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navigation from '../Navigation';
+import Header from '../Header';
+import Footer from '../Footer';
 import LoadingSkeleton from '../LoadingSkeleton';
 import ProfileStats from '../ProfileStats';
 import RecentActivity from '../RecentActivity';
 import { useToast } from '../Toast';
 import ImageUpload from './ImageUpload';
 import { Profile } from '../../types';
+import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
 import michaelImage from '../../assets/images/michael.jpg';
 import amandaImage from '../../assets/images/amanda.jpg';
 import joeyImage from '../../assets/images/joey.jpg';
@@ -84,6 +87,58 @@ const ProfileEdit: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  
+  // Music and theme state
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [volume, setVolume] = useState<number>(0.5);
+  const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
+  const [theme, setTheme] = useState<string>(() => {
+    const savedTheme = localStorage.getItem('wishlist-theme');
+    return savedTheme || 'winter';
+  });
+  const [showThemeList, setShowThemeList] = useState<boolean>(false);
+
+  const themes = [
+    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
+    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
+    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
+    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
+    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
+  ];
+
+  // Effect to handle music play/pause and volume
+  useEffect(() => {
+    const audio = audioRef.current;
+    audio.volume = volume;
+    if (isPlaying) {
+      audio.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
+      audio.loop = true;
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, volume]);
+
+  // Cleanup: Stop music when component unmounts
+  useEffect(() => {
+    const audio = audioRef.current;
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsPlaying(false);
+    };
+  }, []);
+
+  // Update theme and persist to localStorage
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wishlist-theme', theme);
+  }, [theme]);
+
+  const toggleMusic = () => {
+    setIsPlaying((prev) => !prev);
+  };
 
   const fetchProfiles = useCallback(async () => {
     if (!user) return;
@@ -245,25 +300,38 @@ const ProfileEdit: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-base-100">
+      <Header 
+        isPlaying={isPlaying}
+        volume={volume}
+        toggleMusic={toggleMusic}
+        setVolume={setVolume}
+        theme={theme}
+        themes={themes}
+        setTheme={setTheme}
+        showThemeList={showThemeList}
+        setShowThemeList={setShowThemeList}
+        showToast={showToast}
+      />
       <Navigation />
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
         <div className="card-body p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
-            <h1 className="card-title text-2xl sm:text-3xl">Edit Profile</h1>
+            <h1 className="card-title text-xl sm:text-2xl md:text-3xl">Edit Profile</h1>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <button 
-                className="btn btn-sm sm:btn-md btn-outline btn-primary w-full sm:w-auto"
+                className="btn btn-xs sm:btn-sm md:btn-md btn-outline btn-primary w-full sm:w-auto text-xs sm:text-sm"
                 onClick={() => navigate('/claim')}
               >
-                👤 Claim Profiles
+                <span className="text-sm sm:text-base">👤</span>
+                <span>Claim Profiles</span>
               </button>
               {profiles.length > 1 && (
                 <div className="dropdown dropdown-end w-full sm:w-auto">
-                  <label tabIndex={0} className="btn btn-sm sm:btn-md btn-outline w-full sm:w-auto">
-                    {profile.name} ▼
+                  <label tabIndex={0} className="btn btn-xs sm:btn-sm md:btn-md btn-outline w-full sm:w-auto text-xs sm:text-sm">
+                    <span className="truncate max-w-[120px] sm:max-w-none">{profile.name}</span> <span className="hidden sm:inline">▼</span>
                   </label>
-                  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+                  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full sm:w-52 z-50">
                     {profiles.map((p) => (
                       <li key={p.id}>
                         <button
@@ -295,18 +363,18 @@ const ProfileEdit: React.FC = () => {
           {/* Editable Fields Section - Prominent */}
           <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
             <div className="divider">
-              <h2 className="text-lg sm:text-xl font-bold">Edit Profile Information</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-bold">Edit Profile Information</h2>
             </div>
 
             {/* Profile Picture Upload */}
             <div className="form-control">
               <label className="label py-1 sm:py-2">
-                <span className="label-text font-semibold text-base sm:text-lg">Profile Picture</span>
+                <span className="label-text font-semibold text-sm sm:text-base md:text-lg">Profile Picture</span>
               </label>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4">
                 {/* Current Picture Preview */}
-                <div className="avatar">
-                  <div className="w-24 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 overflow-hidden">
+                <div className="avatar flex-shrink-0">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 overflow-hidden">
                     <img 
                       src={imageUrl || fallbackImages[profile.name] || ''} 
                       alt={profile.name}
@@ -349,41 +417,43 @@ const ProfileEdit: React.FC = () => {
             {/* Wishlist Link */}
             <div className="form-control">
               <label className="label py-1 sm:py-2">
-                <span className="label-text font-semibold text-base sm:text-lg">Wishlist Link</span>
-                <span className="label-text-alt text-xs sm:text-sm text-base-content/60">Your Amazon wishlist URL</span>
+                <span className="label-text font-semibold text-sm sm:text-base md:text-lg">Wishlist Link</span>
+                <span className="label-text-alt text-[10px] sm:text-xs md:text-sm text-base-content/60 hidden sm:inline">Your Amazon wishlist URL</span>
               </label>
               <input
                 type="url"
                 placeholder="https://www.amazon.com/hz/wishlist/..."
-                className="input input-bordered input-sm sm:input-lg w-full"
+                className="input input-bordered input-xs sm:input-sm md:input-md lg:input-lg w-full text-xs sm:text-sm md:text-base"
                 value={wishlistLink}
                 onChange={(e) => setWishlistLink(e.target.value)}
               />
-              <label className="label">
-                <span className="label-text-alt text-xs sm:text-sm">Paste your Amazon wishlist link here</span>
+              <label className="label py-1">
+                <span className="label-text-alt text-[10px] sm:text-xs md:text-sm">Paste your Amazon wishlist link here</span>
               </label>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="card-actions justify-end flex-col sm:flex-row gap-2 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-base-300">
-            <button className="btn btn-sm sm:btn-md btn-ghost w-full sm:w-auto" onClick={() => navigate('/wishlist')}>
+            <button className="btn btn-xs sm:btn-sm md:btn-md btn-ghost w-full sm:w-auto text-xs sm:text-sm" onClick={() => navigate('/wishlist')}>
               Cancel
             </button>
             <button
-              className="btn btn-sm sm:btn-md sm:btn-lg btn-primary w-full sm:w-auto"
+              className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary w-full sm:w-auto text-xs sm:text-sm md:text-base"
               onClick={handleSave}
               disabled={saving}
             >
               {saving ? (
                 <>
-                  <span className="loading loading-spinner loading-sm"></span>
-                  Saving...
+                  <span className="loading loading-spinner loading-xs sm:loading-sm"></span>
+                  <span className="hidden sm:inline">Saving...</span>
+                  <span className="sm:hidden">Saving</span>
                 </>
               ) : (
                 <>
-                  <span>💾</span>
-                  Save Changes
+                  <span className="text-sm sm:text-base">💾</span>
+                  <span className="hidden sm:inline">Save Changes</span>
+                  <span className="sm:hidden">Save</span>
                 </>
               )}
             </button>
@@ -394,13 +464,13 @@ const ProfileEdit: React.FC = () => {
           
           <div className="space-y-4 sm:space-y-6">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <h2 className="text-lg sm:text-xl font-bold">Profile Information</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-bold">Profile Information</h2>
             </div>
             
             {/* Profile Name Display */}
-            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-base-200 rounded-lg">
-              <div className="avatar">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 overflow-hidden">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 bg-base-200 rounded-lg">
+              <div className="avatar flex-shrink-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 overflow-hidden">
                   <img 
                     src={imageUrl || fallbackImages[profile.name] || ''} 
                     alt={profile.name}
@@ -424,9 +494,9 @@ const ProfileEdit: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-semibold">{profile.name}</h3>
-                <p className="text-xs sm:text-sm text-base-content/60">Profile Name (cannot be changed)</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate">{profile.name}</h3>
+                <p className="text-[10px] sm:text-xs md:text-sm text-base-content/60">Profile Name (cannot be changed)</p>
               </div>
             </div>
 
@@ -443,6 +513,7 @@ const ProfileEdit: React.FC = () => {
         </div>
       </div>
       </div>
+      <Footer />
     </div>
   );
 };

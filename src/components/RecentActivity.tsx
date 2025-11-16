@@ -96,21 +96,21 @@ const RecentActivity: React.FC = () => {
 
   return (
     <div className="card bg-base-200 shadow">
-      <div className="card-body">
-        <h3 className="card-title text-lg">Recent Activity</h3>
-        <div className="space-y-2">
+      <div className="card-body p-3 sm:p-4 md:p-6">
+        <h3 className="card-title text-sm sm:text-base md:text-lg mb-2 sm:mb-4">Recent Activity</h3>
+        <div className="space-y-2 sm:space-y-3">
           {activities.map((activity) => (
-            <div key={activity.id} className="flex items-start gap-2 text-sm">
-              <span className="text-base-content/60">
+            <div key={activity.id} className="flex items-start gap-2 text-xs sm:text-sm">
+              <span className="text-base-content/60 text-sm sm:text-base flex-shrink-0">
                 {activity.type === 'profile_updated' && '✏️'}
                 {activity.type === 'approval_approved' && '✅'}
                 {activity.type === 'approval_requested' && '📝'}
               </span>
-              <div className="flex-1">
-                <p className="text-base-content">{activity.message}</p>
-                <p className="text-xs text-base-content/60">
+              <div className="flex-1 min-w-0">
+                <p className="text-base-content text-xs sm:text-sm break-words">{activity.message}</p>
+                <p className="text-[10px] sm:text-xs text-base-content/60 mt-0.5">
                   {new Date(activity.timestamp).toLocaleDateString()} at{' '}
-                  {new Date(activity.timestamp).toLocaleTimeString()}
+                  {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
