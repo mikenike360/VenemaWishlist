@@ -107,15 +107,15 @@ export const Elf: React.FC<ElfProps> = ({
       {/* Left Arm */}
       <group
         ref={leftArmRef}
-        position={[-0.25 * scale, 0.45 * scale, 0]}
+        position={[-0.1 * scale, 0.45 * scale, 0]}
         rotation={armRotations.left}
       >
-        <mesh>
+        <mesh position={[0, -0.15 * scale, 0]}>
           <cylinderGeometry args={[0.04 * scale, 0.04 * scale, 0.3 * scale, 12]} />
           <meshStandardMaterial color={coatColor} roughness={0.55} metalness={0.05} />
         </mesh>
         {/* Hand */}
-        <mesh position={[0, -0.15 * scale, 0]}>
+        <mesh position={[0, -0.3 * scale, 0]}>
           <sphereGeometry args={[0.04 * scale, 12, 12]} />
           <meshStandardMaterial color={skinColor} roughness={0.65} />
         </mesh>
@@ -124,15 +124,15 @@ export const Elf: React.FC<ElfProps> = ({
       {/* Right Arm */}
       <group
         ref={rightArmRef}
-        position={[0.25 * scale, 0.45 * scale, 0]}
+        position={[0.1 * scale, 0.45 * scale, 0]}
         rotation={armRotations.right}
       >
-        <mesh>
+        <mesh position={[0, -0.15 * scale, 0]}>
           <cylinderGeometry args={[0.04 * scale, 0.04 * scale, 0.3 * scale, 12]} />
           <meshStandardMaterial color={coatColor} roughness={0.55} metalness={0.05} />
         </mesh>
         {/* Hand */}
-        <mesh position={[0, -0.15 * scale, 0]}>
+        <mesh position={[0, -0.3 * scale, 0]}>
           <sphereGeometry args={[0.04 * scale, 12, 12]} />
           <meshStandardMaterial color={skinColor} roughness={0.65} />
         </mesh>

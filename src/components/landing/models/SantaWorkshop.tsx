@@ -51,7 +51,7 @@ export const SantaWorkshop: React.FC = () => {
           <meshStandardMaterial color="#8B4513" roughness={0.6} />
         </mesh>
         {/* Toy in progress - sitting on table */}
-        <ToyModel position={[0, 0.4, 0.2]} toyType="car" scale={0.6} rotation={[0, 0.5, 0]} noAnimation />
+        <ToyModel position={[0, 0.05, 0.2]} toyType="car" scale={0.6} rotation={[0, 0.5, 0]} noAnimation />
         {/* Elf working at this bench - standing on floor */}
         <Elf position={[-0.5, -0.3, 0.6]} scale={0.6} rotation={[0, Math.PI, 0]} noAnimation workingPose="assembling" />
       </group>
@@ -110,8 +110,8 @@ export const SantaWorkshop: React.FC = () => {
           ))
         ))}
         {/* Gifts on table - sitting on table top */}
-        <GiftModel position={[-0.3, 0.35, -0.3]} scale={0.5} rotation={[0, 0.3, 0]} noAnimation />
-        <GiftModel position={[0.3, 0.35, 0.3]} scale={0.5} rotation={[0, -0.2, 0]} noAnimation />
+        <GiftModel position={[-0.3, 0.05, -0.3]} scale={0.5} rotation={[0, 0.3, 0]} noAnimation />
+        <GiftModel position={[0.3, 0.05, 0.3]} scale={0.5} rotation={[0, -0.2, 0]} noAnimation />
         {/* Wrapping paper roll - sitting on table */}
         <mesh position={[0, 0.2, 0]} rotation={[0, Math.PI / 4, 0]}>
           <cylinderGeometry args={[0.1, 0.1, 0.3, 16]} />
@@ -142,8 +142,8 @@ export const SantaWorkshop: React.FC = () => {
           ))
         ))}
         {/* Gifts on table - sitting on table top */}
-        <GiftModel position={[-0.3, 0.35, 0.3]} scale={0.5} rotation={[0, 0.5, 0]} noAnimation />
-        <GiftModel position={[0.3, 0.35, -0.3]} scale={0.5} rotation={[0, -0.4, 0]} noAnimation />
+        <GiftModel position={[-0.3, 0.05, 0.3]} scale={0.5} rotation={[0, 0.5, 0]} noAnimation />
+        <GiftModel position={[0.3, 0.05, -0.3]} scale={0.5} rotation={[0, -0.4, 0]} noAnimation />
         {/* Elf wrapping gifts - standing on floor */}
         <Elf position={[0, -0.3, 0.9]} scale={0.6} rotation={[0, Math.PI, 0]} noAnimation workingPose="wrapping" />
       </group>
@@ -169,8 +169,8 @@ export const SantaWorkshop: React.FC = () => {
           ))
         ))}
         {/* Toys being assembled - sitting on table */}
-        <ToyModel position={[-0.8, 0.4, 0]} toyType="car" scale={0.7} rotation={[0, 0.8, 0]} noAnimation />
-        <ToyModel position={[0.8, 0.4, 0]} toyType="car" scale={0.7} rotation={[0, -0.3, 0]} noAnimation />
+        <ToyModel position={[-0.8, 0.05, 0]} toyType="car" scale={0.7} rotation={[0, 0.8, 0]} noAnimation />
+        <ToyModel position={[0.8, 0.05, 0]} toyType="car" scale={0.7} rotation={[0, -0.3, 0]} noAnimation />
         {/* Tool box - sitting on table */}
         <mesh position={[0, 0.2, -0.6]}>
           <boxGeometry args={[0.6, 0.3, 0.4]} />
@@ -225,14 +225,14 @@ export const SantaWorkshop: React.FC = () => {
           </mesh>
         ))}
         {/* Gifts on shelves - sitting on shelf surfaces */}
-        <GiftModel position={[-2, 0.55, 0]} scale={0.4} rotation={[0, 0.2, 0]} noAnimation />
-        <GiftModel position={[-1, 0.55, 0]} scale={0.4} rotation={[0, -0.3, 0]} noAnimation />
-        <GiftModel position={[0, 0.55, 0]} scale={0.4} rotation={[0, 0.4, 0]} noAnimation />
-        <GiftModel position={[1, 0.55, 0]} scale={0.4} rotation={[0, -0.2, 0]} noAnimation />
-        <GiftModel position={[2, 0.55, 0]} scale={0.4} rotation={[0, 0.3, 0]} noAnimation />
-        <GiftModel position={[-1.5, 1.35, 0]} scale={0.35} rotation={[0, -0.2, 0]} noAnimation />
-        <GiftModel position={[0, 1.35, 0]} scale={0.35} rotation={[0, 0.3, 0]} noAnimation />
-        <GiftModel position={[1.5, 1.35, 0]} scale={0.35} rotation={[0, -0.4, 0]} noAnimation />
+        <GiftModel position={[-2, 0.05, 0]} scale={0.4} rotation={[0, 0.2, 0]} noAnimation />
+        <GiftModel position={[-1, 0.05, 0]} scale={0.4} rotation={[0, -0.3, 0]} noAnimation />
+        <GiftModel position={[0, 0.05, 0]} scale={0.4} rotation={[0, 0.4, 0]} noAnimation />
+        <GiftModel position={[1, 0.05, 0]} scale={0.4} rotation={[0, -0.2, 0]} noAnimation />
+        <GiftModel position={[2, 0.05, 0]} scale={0.4} rotation={[0, 0.3, 0]} noAnimation />
+        <GiftModel position={[-1.5, 0.85, 0]} scale={0.35} rotation={[0, -0.2, 0]} noAnimation />
+        <GiftModel position={[0, 0.85, 0]} scale={0.35} rotation={[0, 0.3, 0]} noAnimation />
+        <GiftModel position={[1.5, 0.85, 0]} scale={0.35} rotation={[0, -0.4, 0]} noAnimation />
       </group>
     </group>
   );

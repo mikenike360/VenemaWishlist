@@ -14,7 +14,7 @@ const LandingPage: React.FC = () => {
   // Music and theme state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.5);
-  const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [theme, setTheme] = useState<string>(() => {
     const savedTheme = localStorage.getItem('wishlist-theme');
     return savedTheme || 'winter';
@@ -29,15 +29,35 @@ const LandingPage: React.FC = () => {
     'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
   ];
 
+  // Initialize audio element
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(backgroundMusic);
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.5;
+      audioRef.current.preload = 'auto';
+    }
+  }, []);
+
   // Effect to handle music play/pause and volume
   useEffect(() => {
+    if (!audioRef.current) return;
+    
     const audio = audioRef.current;
     audio.volume = volume;
+    
     if (isPlaying) {
-      audio.play().catch((error) => {
-        console.error('Error playing audio:', error);
-      });
-      audio.loop = true;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // Audio is playing successfully
+          })
+          .catch((error) => {
+            console.error('Error playing audio:', error);
+            setIsPlaying(false);
+          });
+      }
     } else {
       audio.pause();
     }
@@ -46,8 +66,11 @@ const LandingPage: React.FC = () => {
   // Cleanup audio on unmount
   useEffect(() => {
     return () => {
-      audioRef.current.pause();
-      audioRef.current.src = '';
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        audioRef.current = null;
+      }
     };
   }, []);
 

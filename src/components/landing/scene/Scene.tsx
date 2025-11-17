@@ -12,6 +12,7 @@ import { SantaModel } from '../models/SantaModel';
 import { ToyModel } from '../models/ToyModel';
 import { GiftModel } from '../models/GiftModel';
 import { SantaWorkshop } from '../models/SantaWorkshop';
+import { Elf } from '../models/Elf';
 
 export const Scene: React.FC = () => {
   const { camera } = useThree();
@@ -46,6 +47,17 @@ export const Scene: React.FC = () => {
       {/* Y position is -0.5 to match the ground plane position */}
       <SnowmanModel position={[-1.5, -0.5, 3]} scale={0.85} />
       <SnowmanModel position={[1.5, -0.5, 3]} scale={0.85} />
+      
+      {/* Elves - positioned around the scene */}
+      {/* Two elves between the snowmen - spaced out better */}
+      <Elf position={[-0.6, -0.5, 3]} scale={0.7} rotation={[0, Math.PI / 4, 0]} workingPose="default" />
+      <Elf position={[0.6, -0.5, 3]} scale={0.7} rotation={[0, -Math.PI / 4, 0]} workingPose="default" />
+      
+      {/* Elves near the Christmas tree - facing camera (away from center) */}
+      {/* Reverse the angle to face away from center toward camera */}
+      <Elf position={[-2.2, -0.5, 1.2]} scale={0.75} rotation={[0, Math.atan2(2.2, -1.2) + Math.PI, 0]} workingPose="default" />
+      <Elf position={[2.2, -0.5, 1.2]} scale={0.75} rotation={[0, Math.atan2(-2.2, -1.2) + Math.PI, 0]} workingPose="default" />
+      <Elf position={[0, -0.5, 2.5]} scale={0.7} rotation={[0, 0, 0]} workingPose="default" />
 
       {/* Santa - positioned clearly visible */}
       {/* Y position adjusted so boots sit on ground (boots bottom at -0.02 relative to group, ground at -0.5) */}
