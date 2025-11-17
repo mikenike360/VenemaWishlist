@@ -4,8 +4,8 @@ import { OrbitControls } from '@react-three/drei';
 export const CameraControls: React.FC = () => {
   return (
     <OrbitControls
-      enableZoom={false}
-      enablePan={false}
+      enableZoom={true}
+      enablePan={true}
       enableRotate={true}
       minDistance={8}
       maxDistance={50}

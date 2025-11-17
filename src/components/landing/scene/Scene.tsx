@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Lighting } from './Lighting';
 import { CameraControls } from './CameraControls';
 import { SnowyGround } from '../environment/SnowyGround';
@@ -10,8 +11,23 @@ import { Tree } from '../models/Tree';
 import { SantaModel } from '../models/SantaModel';
 import { ToyModel } from '../models/ToyModel';
 import { GiftModel } from '../models/GiftModel';
+import { SantaWorkshop } from '../models/SantaWorkshop';
 
 export const Scene: React.FC = () => {
+  const { camera } = useThree();
+  const [showWorkshop, setShowWorkshop] = useState(false);
+  const threshold = -0.5; // Ground level threshold
+
+  useFrame(() => {
+    // Check if camera Y position is below ground level
+    const cameraY = camera.position.y;
+    const shouldShow = cameraY < threshold;
+    
+    if (shouldShow !== showWorkshop) {
+      setShowWorkshop(shouldShow);
+    }
+  });
+
   return (
     <>
       <Lighting />
@@ -99,6 +115,9 @@ export const Scene: React.FC = () => {
       
       {/* Camera Controls */}
       <CameraControls />
+      
+      {/* Santa's Workshop - only visible when camera pans below ground */}
+      {showWorkshop && <SantaWorkshop />}
     </>
   );
 };
