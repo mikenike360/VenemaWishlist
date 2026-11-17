@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
     <footer 
       className={`footer footer-center py-4 sm:py-6 border-t relative z-20 ${
         isLandingPage 
-          ? 'bg-slate-900/95 backdrop-blur-md text-white border-slate-700 shadow-lg' 
+          ? 'mt-auto bg-slate-900/95 backdrop-blur-md text-white border-slate-700 shadow-lg' 
           : 'bg-base-200 text-base-content border-base-300'
       }`}
     >

@@ -1,33 +1,46 @@
-import React, { Suspense, useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useEffect, useRef, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Scene } from './scene/Scene';
-import { HeroSection } from './ui/HeroSection';
 import { LandingStyles } from './ui/LandingStyles';
+import { PresentPanel } from './ui/PresentPanel';
+import { PeopleDrawer } from './ui/PeopleDrawer';
+import { OrbitPad } from './ui/OrbitPad';
+import { OrbitHold } from './scene/CameraControls';
 import Header from '../Header';
 import Footer from '../Footer';
-import { useToast } from '../Toast';
+import { supabase } from '../../lib/supabase';
+import { PresentPerson, profileToPresent, ringPosition } from '../../lib/profiles';
 import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
 
 const LandingPage: React.FC = () => {
-  const { showToast } = useToast();
-
-  // Music and theme state
+  // Music state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.5);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [theme, setTheme] = useState<string>(() => {
-    const savedTheme = localStorage.getItem('wishlist-theme');
-    return savedTheme || 'winter';
-  });
-  const [showThemeList, setShowThemeList] = useState<boolean>(false);
+  const [people, setPeople] = useState<PresentPerson[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<PresentPerson | null>(null);
+  const [focus, setFocus] = useState<[number, number, number] | null>(null);
+  const [showPeople, setShowPeople] = useState(false);
+  const orbit = useRef<OrbitHold>({ left: false, right: false, up: false, down: false });
 
-  const themes = [
-    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
-    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
-    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
-    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
-    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
-  ];
+  const matches = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return [];
+    return people.filter((person) => person.name.toLowerCase().includes(needle));
+  }, [people, query]);
+
+  const focusOn = (person: PresentPerson) => {
+    const index = people.findIndex((item) => item.id === person.id);
+    if (index >= 0) setFocus(ringPosition(index, people.length));
+  };
+
+  const openPerson = (person: PresentPerson) => {
+    setSelected(person);
+    focusOn(person);
+    setShowPeople(false);
+  };
 
   // Initialize audio element
   useEffect(() => {
@@ -74,15 +87,38 @@ const LandingPage: React.FC = () => {
     };
   }, []);
 
-  // Update theme and persist to localStorage
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('wishlist-theme', theme);
-  }, [theme]);
-
   const toggleMusic = () => {
     setIsPlaying(!isPlaying);
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadPeople = async () => {
+      const { data, error } = await supabase.from('profiles').select('*').order('name');
+      if (cancelled) return;
+      if (error) {
+        setLoadError('The family list could not load.');
+        setPeople([]);
+        return;
+      }
+      setLoadError(null);
+      setPeople((data || []).map(profileToPresent));
+    };
+    loadPeople();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!query.trim()) return;
+    if (matches.length === 1) {
+      const index = people.findIndex((item) => item.id === matches[0].id);
+      if (index >= 0) setFocus(ringPosition(index, people.length));
+      return;
+    }
+    setFocus(null);
+  }, [matches, people, query]);
 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex flex-col">
@@ -91,17 +127,30 @@ const LandingPage: React.FC = () => {
         volume={volume}
         toggleMusic={toggleMusic}
         setVolume={setVolume}
-        theme={theme}
-        themes={themes}
-        setTheme={setTheme}
-        showThemeList={showThemeList}
-        setShowThemeList={setShowThemeList}
-        showToast={showToast}
       />
+      <div className="relative z-20 flex flex-wrap items-center gap-2 px-3 pt-2 pointer-events-auto">
+        <input
+          type="search"
+          value={query}
+          placeholder="Search the family..."
+          aria-label="Search the family"
+          className="input input-sm w-full max-w-xs bg-base-100/95"
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && matches.length === 1) {
+              openPerson(matches[0]);
+            }
+          }}
+        />
+        <button type="button" className="btn btn-sm btn-primary" onClick={() => setShowPeople((open) => !open)}>
+          People
+        </button>
+        {loadError && <p className="text-sm font-semibold text-white drop-shadow">{loadError}</p>}
+      </div>
       {/* 3D Scene */}
       <div className="absolute inset-0 z-0">
         <Canvas 
-          camera={{ position: [0, 8, 14], fov: 60 }} 
+          camera={{ position: [0, 4.6, 9.2], fov: 52 }} 
           shadows
           gl={{ 
             antialias: true,
@@ -113,20 +162,28 @@ const LandingPage: React.FC = () => {
           dpr={[1, 2]}
         >
           <Suspense fallback={null}>
-            <Scene />
+            <Scene
+              people={people}
+              query={query}
+              focus={focus}
+              onSelect={openPerson}
+              onReleaseCamera={() => setFocus(null)}
+              orbit={orbit}
+            />
           </Suspense>
         </Canvas>
       </div>
 
-      {/* Animated gradient overlay for better text readability */}
-      <div className="absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-transparent to-slate-900/40 pointer-events-none" />
-
-      {/* Content Overlay */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-end px-4 pb-20 sm:pb-24 md:pb-32 pointer-events-none">
-        <div className="pointer-events-auto w-full max-w-6xl">
-          <HeroSection />
-        </div>
-      </div>
+      <OrbitPad orbit={orbit} />
+      {selected && <PresentPanel person={selected} onClose={() => setSelected(null)} />}
+      {showPeople && (
+        <PeopleDrawer
+          people={people}
+          query={query}
+          onPick={openPerson}
+          onClose={() => setShowPeople(false)}
+        />
+      )}
 
       {/* Custom animations */}
       <LandingStyles />

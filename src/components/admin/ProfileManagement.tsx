@@ -188,18 +188,16 @@ const ProfileManagement: React.FC = () => {
       </div>
 
       {/* Search */}
-      <div className="form-control">
-        <label className="label py-0.5">
-          <span className="label-text text-[10px] font-semibold">🔍 Search Profiles</span>
-        </label>
+      <fieldset className="fieldset w-full">
+        <legend className="fieldset-legend text-[10px] font-semibold">🔍 Search Profiles</legend>
         <input
           type="text"
           placeholder="Search by email or profile name..."
-          className="input input-bordered input-primary input-xs w-full"
+          className="input input-primary input-xs w-full"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      </div>
+      </fieldset>
 
       {/* User Profiles List */}
       <div className="space-y-4">
@@ -284,7 +282,7 @@ const ProfileManagement: React.FC = () => {
                               <div className="badge badge-ghost badge-sm mt-2">No link</div>
                             )}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             {userProfile.id !== 'unclaimed' && (
                               <button
                                 className="btn btn-sm btn-error btn-circle"

@@ -64,7 +64,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onUploadComp
   };
 
   return (
-    <div className="form-control w-full">
+    <div className="w-full">
       {preview && (
         <div className="mb-3 sm:mb-4 flex justify-center sm:justify-start">
           <img
@@ -77,7 +77,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onUploadComp
       <input
         type="file"
         accept="image/*"
-        className="file-input file-input-bordered file-input-xs sm:file-input-sm md:file-input-md w-full text-xs sm:text-sm"
+        className="file-input file-input-xs sm:file-input-sm md:file-input-md w-full text-xs sm:text-sm"
         onChange={handleFileUpload}
         disabled={uploading}
       />

@@ -101,7 +101,7 @@ const RecentActivity: React.FC = () => {
         <div className="space-y-2 sm:space-y-3">
           {activities.map((activity) => (
             <div key={activity.id} className="flex items-start gap-2 text-xs sm:text-sm">
-              <span className="text-base-content/60 text-sm sm:text-base flex-shrink-0">
+              <span className="text-base-content/60 text-sm sm:text-base shrink-0">
                 {activity.type === 'profile_updated' && '✏️'}
                 {activity.type === 'approval_approved' && '✅'}
                 {activity.type === 'approval_requested' && '📝'}

@@ -7,7 +7,44 @@ interface ElfProps {
   scale?: number;
   rotation?: [number, number, number];
   noAnimation?: boolean;
-  workingPose?: 'assembling' | 'wrapping' | 'default';
+  workingPose?: 'assembling' | 'wrapping' | 'sign' | 'default';
+  sign?: string;
+}
+
+function makeSignTexture(message: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 768;
+  canvas.height = 384;
+  const context = canvas.getContext('2d');
+  const texture = new THREE.CanvasTexture(canvas);
+  if (!context) return texture;
+
+  context.fillStyle = '#f6efe2';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.strokeStyle = '#6b3a2a';
+  context.lineWidth = 22;
+  context.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
+
+  const lines = message.split('\n');
+  context.fillStyle = '#1b3a2f';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  const font = (next: number) => `${next}px Georgia, "Palatino Linotype", Palatino, serif`;
+  let size = 72;
+  context.font = font(size);
+  while (lines.some((line) => context.measureText(line).width > 680) && size > 36) {
+    size -= 4;
+    context.font = font(size);
+  }
+  const start = canvas.height / 2 - ((lines.length - 1) * size * 0.62) / 2;
+  lines.forEach((line, index) => {
+    context.fillText(line, canvas.width / 2, start + index * size * 1.15);
+  });
+
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 const elfHatColors = ['#C41E3A', '#B31237', '#D7263D', '#8B0000'];
@@ -23,6 +60,7 @@ export const Elf: React.FC<ElfProps> = ({
   rotation = [0, 0, 0],
   noAnimation = false,
   workingPose = 'default',
+  sign,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Group>(null);
@@ -46,6 +84,11 @@ export const Elf: React.FC<ElfProps> = ({
           left: [Math.PI / 4, 0, -Math.PI / 6] as [number, number, number],
           right: [-Math.PI / 4, 0, Math.PI / 6] as [number, number, number],
         };
+      case 'sign':
+        return {
+          left: [-0.85, 0.2, 0.45] as [number, number, number],
+          right: [-0.85, -0.2, -0.45] as [number, number, number],
+        };
       default:
         return {
           left: [0, 0, Math.PI / 8] as [number, number, number],
@@ -55,6 +98,9 @@ export const Elf: React.FC<ElfProps> = ({
   };
 
   const armRotations = getArmRotations();
+  const signTexture = React.useMemo(() => (sign ? makeSignTexture(sign) : null), [sign]);
+
+  React.useEffect(() => () => signTexture?.dispose(), [signTexture]);
 
   useFrame((state, delta) => {
     if (groupRef.current && !noAnimation) {
@@ -185,6 +231,19 @@ export const Elf: React.FC<ElfProps> = ({
           emissiveIntensity={0.1}
         />
       </mesh>
+
+      {signTexture && (
+        <group position={[0, 0.48 * scale, 0.3 * scale]} rotation={[-0.12, 0, 0]}>
+          <mesh position={[0, 0, -0.02 * scale]} castShadow>
+            <boxGeometry args={[0.92 * scale, 0.42 * scale, 0.04 * scale]} />
+            <meshStandardMaterial color="#6b3a2a" roughness={0.82} />
+          </mesh>
+          <mesh position={[0, 0, 0.012 * scale]}>
+            <planeGeometry args={[0.82 * scale, 0.32 * scale]} />
+            <meshBasicMaterial map={signTexture} toneMapped={false} />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 };

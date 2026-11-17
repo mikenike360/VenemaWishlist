@@ -23,67 +23,8 @@ import { useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { supabase } from './lib/supabase';
 import { Profile, User } from './types';
+import { profileToUser } from './lib/profiles';
 import backgroundMusic from './assets/audio/jingle_bells.mp3';
-import michaelImage from './assets/images/michael.jpg';
-import amandaImage from './assets/images/amanda.jpg';
-import joeyImage from './assets/images/joey.jpg';
-import aliyaImage from './assets/images/aliya.jpg';
-import eliImage from './assets/images/eli.jpg';
-import ellaImage from './assets/images/ella.jpg';
-import micahImage from './assets/images/micah.jpg';
-import carrieImage from './assets/images/carrie.jpg';
-import rockImage from './assets/images/rock.jpg';
-import kaylaImage from './assets/images/kayla.jpg';
-import mattImage from './assets/images/matt.jpg';
-import sonnyImage from './assets/images/sonny.jpg';
-import barbImage from './assets/images/barb.jpg';
-import mikeImage from './assets/images/mike.jpg';
-import ashleyImage from './assets/images/ashley.jpg';
-import brittanyImage from './assets/images/brittany.jpg';
-import wendyImage from './assets/images/wendy.jpg';
-import karlImage from './assets/images/karl.jpg';
-import marilynImage from './assets/images/marilyn.jpg';
-import bobImage from './assets/images/bob.jpg';
-import nickImage from './assets/images/nick.jpg';
-import nateImage from './assets/images/nate.jpg';
-import chadImage from './assets/images/chad.jpg';
-import johnImage from './assets/images/john.jpg';
-import roenImage from './assets/images/roen.jpg';
-import nolleImage from './assets/images/nolle.jpg';
-import toshImage from './assets/images/tosh.jpg';
-import morganImage from './assets/images/morgan.jpg';
-
-// Fallback images mapping (for profiles without images)
-const fallbackImages: Record<string, string> = {
-  'Michael': michaelImage,
-  'Amanda': amandaImage,
-  'Joey': joeyImage,
-  'Aliya': aliyaImage,
-  'Elijah': eliImage,
-  'Ella': ellaImage,
-  'Micah': micahImage,
-  'Carrie': carrieImage,
-  'Rock': rockImage,
-  'Kayla': kaylaImage,
-  'Matt': mattImage,
-  'Sonny': sonnyImage,
-  'Barbara': barbImage,
-  'Mike': mikeImage,
-  'Ashley': ashleyImage,
-  'Brittany': brittanyImage,
-  'Wendy': wendyImage,
-  'Karl': karlImage,
-  'Marilyn': marilynImage,
-  'Bob': bobImage,
-  'Nick': nickImage,
-  'Nathaniel': nateImage,
-  'Chad': chadImage,
-  'John': johnImage,
-  'Roen': roenImage,
-  'Noli': nolleImage,
-  'Tosh': toshImage,
-  'Morgan': morganImage,
-};
 
 // Shuffle function
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -93,15 +34,6 @@ const shuffleArray = <T,>(array: T[]): T[] => {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
-};
-
-// Convert Profile to User format for WishlistCard
-const profileToUser = (profile: Profile): User => {
-  return {
-    name: profile.name,
-    image: profile.image_url || fallbackImages[profile.name] || '',
-    wishlistLink: profile.wishlist_link || 'https://www.amazon.com/',
-  };
 };
 
 const WishlistPage: React.FC = () => {
@@ -116,12 +48,6 @@ const WishlistPage: React.FC = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [shuffledUsers, setShuffledUsers] = useState<User[]>([]);
-  const [theme, setTheme] = useState<string>(() => {
-    const savedTheme = localStorage.getItem('wishlist-theme');
-    return savedTheme || 'winter';
-  });
-  const [showThemeList, setShowThemeList] = useState<boolean>(false);
-
   // Check if user has claimed any profiles
   const checkUserProfile = useCallback(async () => {
     if (!user) return;
@@ -188,12 +114,6 @@ const WishlistPage: React.FC = () => {
     };
   }, []);
 
-  // Update theme and persist to localStorage
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('wishlist-theme', theme);
-  }, [theme]);
-
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -219,14 +139,6 @@ const WishlistPage: React.FC = () => {
     showToast('Cards shuffled!', 'success');
   };
 
-  const themes = [
-    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
-    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
-    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
-    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
-    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
-  ];
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -243,12 +155,6 @@ const WishlistPage: React.FC = () => {
         volume={volume}
         toggleMusic={toggleMusic}
         setVolume={setVolume}
-        theme={theme}
-        themes={themes}
-        setTheme={setTheme}
-        showThemeList={showThemeList}
-        setShowThemeList={setShowThemeList}
-        showToast={showToast}
       />
       <Navigation />
       
@@ -256,18 +162,16 @@ const WishlistPage: React.FC = () => {
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
         <div className="flex flex-col gap-4 sm:gap-6 mb-4 sm:mb-6 no-print">
           {/* Search Input */}
-          <div className="form-control w-full max-w-xs sm:max-w-md mx-auto">
-            <label className="label py-1 sm:py-2">
-              <span className="label-text font-bold text-sm sm:text-base">🔍 Search Family Members</span>
-            </label>
+          <fieldset className="fieldset w-full max-w-xs sm:max-w-md mx-auto">
+            <legend className="fieldset-legend font-bold text-sm sm:text-base">🔍 Search Family Members</legend>
             <input
               type="text"
               placeholder="Type a name..."
-              className="input input-bordered input-primary w-full input-sm sm:input-md focus:input-primary focus:ring-2 focus:ring-primary"
+              className="input input-primary w-full input-sm sm:input-md focus:input-primary focus:ring-2 focus:ring-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
+          </fieldset>
 
           {/* Desktop Actions - Show buttons directly */}
           <div className="hidden sm:flex flex-wrap gap-3 justify-center items-center mb-4 sm:mb-6 no-print">
@@ -430,7 +334,7 @@ const App: React.FC = () => {
       <Route path="/landing" element={<Navigate to="/" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/wishlist" element={<WishlistPage />} />
+      <Route path="/wishlist" element={<Navigate to="/" replace />} />
             {/* Secret Santa temporarily hidden */}
             {/* <Route
               path="/secret-santa"

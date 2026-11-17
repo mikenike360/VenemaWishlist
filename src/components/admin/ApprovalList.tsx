@@ -217,7 +217,7 @@ const ApprovalList: React.FC = () => {
                     )}
                   </div>
                   {approval.status === 'pending' && (
-                    <div className="flex gap-2 flex-shrink-0 flex-col">
+                    <div className="flex gap-2 shrink-0 flex-col">
                       <button
                         className="btn btn-success btn-sm gap-1"
                         onClick={async () => {

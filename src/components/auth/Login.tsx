@@ -16,24 +16,10 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  // Music and theme state
+  // Music state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.5);
   const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
-  const [theme, setTheme] = useState<string>(() => {
-    const savedTheme = localStorage.getItem('wishlist-theme');
-    return savedTheme || 'winter';
-  });
-  const [showThemeList, setShowThemeList] = useState<boolean>(false);
-
-  const themes = [
-    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
-    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
-    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
-    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
-    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
-  ];
-
   // Effect to handle music play/pause and volume
   useEffect(() => {
     const audio = audioRef.current;
@@ -55,12 +41,6 @@ const Login: React.FC = () => {
       audioRef.current.src = '';
     };
   }, []);
-
-  // Update theme and persist to localStorage
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('wishlist-theme', theme);
-  }, [theme]);
 
   const toggleMusic = () => {
     setIsPlaying(!isPlaying);
@@ -90,12 +70,6 @@ const Login: React.FC = () => {
         volume={volume}
         toggleMusic={toggleMusic}
         setVolume={setVolume}
-        theme={theme}
-        themes={themes}
-        setTheme={setTheme}
-        showThemeList={showThemeList}
-        setShowThemeList={setShowThemeList}
-        showToast={showToast}
       />
       <Navigation />
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-2 sm:px-4 py-4">
@@ -130,35 +104,31 @@ const Login: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            <div className="form-control">
-              <label className="label py-1 sm:py-2">
-                <span className="label-text text-sm sm:text-base">Email</span>
-              </label>
+            <fieldset className="fieldset w-full">
+              <legend className="fieldset-legend text-sm sm:text-base">Email</legend>
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="input input-bordered input-sm sm:input-md"
+                className="input input-sm sm:input-md w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-            </div>
+            </fieldset>
 
-            <div className="form-control">
-              <label className="label py-1 sm:py-2">
-                <span className="label-text text-sm sm:text-base">Password</span>
-              </label>
+            <fieldset className="fieldset w-full">
+              <legend className="fieldset-legend text-sm sm:text-base">Password</legend>
               <input
                 type="password"
                 placeholder="Password"
-                className="input input-bordered input-sm sm:input-md"
+                className="input input-sm sm:input-md w-full"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-            </div>
+            </fieldset>
 
-            <div className="form-control mt-4 sm:mt-6">
+            <div className="mt-4 sm:mt-6">
               <button
                 type="submit"
                 className={`btn btn-sm sm:btn-md btn-primary w-full ${loading ? 'loading' : ''}`}

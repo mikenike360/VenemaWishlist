@@ -88,24 +88,10 @@ const ProfileEdit: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  // Music and theme state
+  // Music state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.5);
   const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
-  const [theme, setTheme] = useState<string>(() => {
-    const savedTheme = localStorage.getItem('wishlist-theme');
-    return savedTheme || 'winter';
-  });
-  const [showThemeList, setShowThemeList] = useState<boolean>(false);
-
-  const themes = [
-    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
-    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
-    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
-    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
-    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
-  ];
-
   // Effect to handle music play/pause and volume
   useEffect(() => {
     const audio = audioRef.current;
@@ -129,12 +115,6 @@ const ProfileEdit: React.FC = () => {
       setIsPlaying(false);
     };
   }, []);
-
-  // Update theme and persist to localStorage
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('wishlist-theme', theme);
-  }, [theme]);
 
   const toggleMusic = () => {
     setIsPlaying((prev) => !prev);
@@ -305,12 +285,6 @@ const ProfileEdit: React.FC = () => {
         volume={volume}
         toggleMusic={toggleMusic}
         setVolume={setVolume}
-        theme={theme}
-        themes={themes}
-        setTheme={setTheme}
-        showThemeList={showThemeList}
-        setShowThemeList={setShowThemeList}
-        showToast={showToast}
       />
       <Navigation />
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
@@ -367,13 +341,11 @@ const ProfileEdit: React.FC = () => {
             </div>
 
             {/* Profile Picture Upload */}
-            <div className="form-control">
-              <label className="label py-1 sm:py-2">
-                <span className="label-text font-semibold text-sm sm:text-base md:text-lg">Profile Picture</span>
-              </label>
+            <fieldset className="fieldset w-full">
+              <legend className="fieldset-legend font-semibold text-sm sm:text-base md:text-lg">Profile Picture</legend>
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4">
                 {/* Current Picture Preview */}
-                <div className="avatar flex-shrink-0">
+                <div className="avatar shrink-0">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 overflow-hidden">
                     <img 
                       src={imageUrl || fallbackImages[profile.name] || ''} 
@@ -412,25 +384,23 @@ const ProfileEdit: React.FC = () => {
                   />
                 </div>
               </div>
-            </div>
+            </fieldset>
 
             {/* Wishlist Link */}
-            <div className="form-control">
-              <label className="label py-1 sm:py-2">
-                <span className="label-text font-semibold text-sm sm:text-base md:text-lg">Wishlist Link</span>
-                <span className="label-text-alt text-[10px] sm:text-xs md:text-sm text-base-content/60 hidden sm:inline">Your Amazon wishlist URL</span>
-              </label>
+            <fieldset className="fieldset w-full">
+              <legend className="fieldset-legend font-semibold text-sm sm:text-base md:text-lg">
+                Wishlist Link
+                <span className="font-normal text-[10px] sm:text-xs md:text-sm text-base-content/60 hidden sm:inline">Your Amazon wishlist URL</span>
+              </legend>
               <input
                 type="url"
                 placeholder="https://www.amazon.com/hz/wishlist/..."
-                className="input input-bordered input-xs sm:input-sm md:input-md lg:input-lg w-full text-xs sm:text-sm md:text-base"
+                className="input input-xs sm:input-sm md:input-md lg:input-lg w-full text-xs sm:text-sm md:text-base"
                 value={wishlistLink}
                 onChange={(e) => setWishlistLink(e.target.value)}
               />
-              <label className="label py-1">
-                <span className="label-text-alt text-[10px] sm:text-xs md:text-sm">Paste your Amazon wishlist link here</span>
-              </label>
-            </div>
+              <p className="label text-[10px] sm:text-xs md:text-sm">Paste your Amazon wishlist link here</p>
+            </fieldset>
           </div>
 
           {/* Action Buttons */}
@@ -469,7 +439,7 @@ const ProfileEdit: React.FC = () => {
             
             {/* Profile Name Display */}
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 bg-base-200 rounded-lg">
-              <div className="avatar flex-shrink-0">
+              <div className="avatar shrink-0">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full ring ring-primary ring-offset-2 ring-offset-base-200 overflow-hidden">
                   <img 
                     src={imageUrl || fallbackImages[profile.name] || ''} 

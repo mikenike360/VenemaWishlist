@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TimeLeft } from '../types';
+import { nextChristmas } from '../lib/christmas';
 
 const Countdown: React.FC = () => {
   const calculateTimeLeft = (): TimeLeft => {
-    const christmas = new Date('December 25, 2025 00:00:00');
+    const christmas = nextChristmas();
     const now = new Date();
     const difference = christmas.getTime() - now.getTime();
 

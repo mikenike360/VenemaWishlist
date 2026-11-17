@@ -4,31 +4,15 @@ import Header from '../Header';
 import Footer from '../Footer';
 import ApprovalList from './ApprovalList';
 import ProfileManagement from './ProfileManagement';
-import { useToast } from '../Toast';
 import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'approvals' | 'profiles'>('approvals');
-  const { showToast } = useToast();
 
-  // Music and theme state
+  // Music state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.5);
   const audioRef = useRef<HTMLAudioElement>(new Audio(backgroundMusic));
-  const [theme, setTheme] = useState<string>(() => {
-    const savedTheme = localStorage.getItem('wishlist-theme');
-    return savedTheme || 'winter';
-  });
-  const [showThemeList, setShowThemeList] = useState<boolean>(false);
-
-  const themes = [
-    'acid', 'aqua', 'autumn', 'black', 'bumblebee', 'business', 
-    'coffee', 'corporate', 'cupcake', 'cmyk', 'cyberpunk', 'dark', 
-    'dracula', 'emerald', 'fantasy', 'forest', 'garden', 'halloween', 
-    'lemonade', 'light', 'lofi', 'luxury', 'night', 'pastel', 
-    'retro', 'synthwave', 'valentine', 'wireframe', 'winter'
-  ];
-
   // Effect to handle music play/pause and volume
   useEffect(() => {
     const audio = audioRef.current;
@@ -51,12 +35,6 @@ const AdminDashboard: React.FC = () => {
     };
   }, []);
 
-  // Update theme and persist to localStorage
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('wishlist-theme', theme);
-  }, [theme]);
-
   const toggleMusic = () => {
     setIsPlaying(!isPlaying);
   };
@@ -68,12 +46,6 @@ const AdminDashboard: React.FC = () => {
         volume={volume}
         toggleMusic={toggleMusic}
         setVolume={setVolume}
-        theme={theme}
-        themes={themes}
-        setTheme={setTheme}
-        showThemeList={showThemeList}
-        setShowThemeList={setShowThemeList}
-        showToast={showToast}
       />
       <Navigation />
       <div className="container mx-auto px-2 sm:px-4 py-2">

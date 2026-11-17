@@ -1,6 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: false;
+}
+@plugin "daisyui/theme" {
+  name: "christmas";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: oklch(96% 0.02 95);
+  --color-base-200: oklch(92% 0.03 95);
+  --color-base-300: oklch(86% 0.04 90);
+  --color-base-content: oklch(27% 0.06 155);
+  --color-primary: oklch(42% 0.16 25);
+  --color-primary-content: oklch(96% 0.02 95);
+  --color-secondary: oklch(38% 0.09 155);
+  --color-secondary-content: oklch(96% 0.02 95);
+  --color-accent: oklch(78% 0.14 85);
+  --color-accent-content: oklch(28% 0.06 50);
+  --color-neutral: oklch(30% 0.04 155);
+  --color-neutral-content: oklch(96% 0.02 95);
+  --color-info: oklch(70% 0.08 230);
+  --color-info-content: oklch(20% 0.04 230);
+  --color-success: oklch(48% 0.11 155);
+  --color-success-content: oklch(96% 0.02 95);
+  --color-warning: oklch(78% 0.14 85);
+  --color-warning-content: oklch(28% 0.06 50);
+  --color-error: oklch(55% 0.18 25);
+  --color-error-content: oklch(96% 0.02 95);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
 
 body {
   margin: 0;

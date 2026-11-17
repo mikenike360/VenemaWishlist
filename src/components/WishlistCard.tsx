@@ -57,13 +57,13 @@ const WishlistCard: React.FC<WishlistCardProps> = ({ user, isFlipped }) => {
             <img 
               src={user.image} 
               alt={`${user.name}'s Wishlist`} 
-              className="user-image mb-0.5 sm:mb-1.5 md:mb-2 lg:mb-3 border-2 border-base-100 sm:border-3 md:border-4 shadow-xl transition-transform duration-300 hover:scale-110 flex-shrink-0" 
+              className="user-image mb-0.5 sm:mb-1.5 md:mb-2 lg:mb-3 border-2 border-base-100 sm:border-3 md:border-4 shadow-xl transition-transform duration-300 hover:scale-110 shrink-0" 
             />
             <h2 className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-bold text-success-content mb-1 sm:mb-1.5 md:mb-2 lg:mb-3 drop-shadow-lg px-1 sm:px-2 text-center leading-tight line-clamp-2 break-words min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
               {user.name} 🎁
             </h2>
           </div>
-          <div className="flex flex-col gap-0.5 sm:gap-1.5 items-center w-full px-0.5 sm:px-2 flex-shrink-0 mt-auto">
+          <div className="flex flex-col gap-0.5 sm:gap-1.5 items-center w-full px-0.5 sm:px-2 shrink-0 mt-auto">
             <a 
               href={user.wishlistLink} 
               target="_blank" 

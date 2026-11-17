@@ -136,7 +136,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
       {children}
       {modal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000]"
           onClick={handleBackdropClick}
         >
           <div className="modal modal-open">
@@ -145,10 +145,10 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
               <p className="py-4 text-base-content/80">{modal.message}</p>
               
               {modal.type === 'prompt' && (
-                <div className="form-control mb-4">
+                <div className="mb-4">
                   <input
                     type="text"
-                    className="input input-bordered w-full"
+                    className="input w-full"
                     value={promptValue}
                     onChange={(e) => setPromptValue(e.target.value)}
                     autoFocus

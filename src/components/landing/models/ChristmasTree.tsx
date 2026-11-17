@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useNavigate } from 'react-router-dom';
 import { easing } from '../../../lib/materials';
 
 interface ChristmasTreeProps {
@@ -13,8 +12,6 @@ export const ChristmasTree: React.FC<ChristmasTreeProps> = ({ position = [0, 0, 
   const treeRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const timeRef = useRef(0);
-  const navigate = useNavigate();
-
   useFrame((state, delta) => {
     if (treeRef.current) {
       timeRef.current += delta;
@@ -28,17 +25,12 @@ export const ChristmasTree: React.FC<ChristmasTreeProps> = ({ position = [0, 0, 
 
   const treeScale = scale;
 
-  const handleClick = () => {
-    navigate('/wishlist');
-  };
-
   return (
     <group 
       ref={treeRef} 
       position={position}
       onPointerOver={() => setHovered(true)} 
       onPointerOut={() => setHovered(false)}
-      onClick={handleClick}
     >
       {/* Tree trunk */}
       <mesh position={[0, -1 * treeScale, 0]} castShadow receiveShadow>
