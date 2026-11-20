@@ -18,7 +18,8 @@ header {
   padding: 0;
 }
 
-header h1 {
+header h1,
+.header-title {
   font-family: 'Mountains of Christmas', cursive;
   /* Font size is now handled by Tailwind responsive classes */
   margin: 0;
@@ -147,8 +148,10 @@ header h1 {
 .lights {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 0;
+  padding-top: 8px;
 }
 
 /* Individual light bulbs */

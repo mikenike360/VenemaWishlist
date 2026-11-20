@@ -18,13 +18,14 @@ import ProfileEdit from './components/profile/ProfileEdit';
 import ProfileClaim from './components/profile/ProfileClaim';
 import SecretSanta from './components/SecretSanta';
 import LandingPage from './components/landing';
+import Credits from './components/Credits';
 import { useAuth } from './contexts/AuthContext';
 import { useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { supabase } from './lib/supabase';
 import { Profile, User } from './types';
 import { profileToUser } from './lib/profiles';
-import backgroundMusic from './assets/audio/jingle_bells.mp3';
+import backgroundMusic from './assets/audio/christmas_chill.mp3';
 
 // Shuffle function
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -332,6 +333,7 @@ const App: React.FC = () => {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
+      <Route path="/credits" element={<Credits />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/wishlist" element={<Navigate to="/" replace />} />

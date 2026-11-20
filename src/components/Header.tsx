@@ -20,13 +20,18 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-primary text-primary-content shadow-lg">
+      <div className="lights" aria-hidden="true">
+        {Array.from({ length: 17 }, (_, index) => (
+          <span key={index} className={`light light-${index % 4}`} />
+        ))}
+      </div>
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           <div className="w-10 shrink-0 sm:w-28" aria-hidden="true" />
           <button
             type="button"
             onClick={() => navigate('/wishlist')}
-            className="min-w-0 flex-1 cursor-pointer text-center text-lg font-bold transition-opacity hover:opacity-80 sm:text-2xl"
+            className="header-title min-w-0 flex-1 cursor-pointer text-center text-lg font-bold transition-opacity hover:opacity-80 sm:text-2xl"
           >
             <span className="hidden sm:inline">Venema Family Wishlist</span>
             <span className="sm:hidden">Venema Wishlist</span>

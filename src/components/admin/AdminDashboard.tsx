@@ -4,7 +4,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import ApprovalList from './ApprovalList';
 import ProfileManagement from './ProfileManagement';
-import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
+import backgroundMusic from '../../assets/audio/christmas_chill.mp3';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'approvals' | 'profiles'>('approvals');

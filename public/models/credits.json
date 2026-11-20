@@ -1,0 +1,172 @@
+[
+  {
+    "file": "gnome.glb",
+    "title": "Gnome",
+    "creator": "Polygonal Mind",
+    "id": "Yy3yuQ4l6r",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/Yy3yuQ4l6r",
+    "requiresAttribution": false,
+    "note": "Stand-in for the elves. No CC0 elf is listed; this gnome is tagged elf."
+  },
+  {
+    "file": "santa.glb",
+    "title": "Santa",
+    "creator": "Polygonal Mind",
+    "id": "KtbHdsr07s",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/KtbHdsr07s",
+    "requiresAttribution": false,
+    "note": "CC0 Santa."
+  },
+  {
+    "file": "snowman.glb",
+    "title": "Snowman",
+    "creator": "Polygonal Mind",
+    "id": "UBldLFdI7l",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/UBldLFdI7l",
+    "requiresAttribution": false,
+    "note": "CC0 snowman."
+  },
+  {
+    "file": "pine.glb",
+    "title": "Pine Tree",
+    "creator": "Quaternius",
+    "id": "gX8WmgkeEm",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/gX8WmgkeEm",
+    "requiresAttribution": false,
+    "note": "CC0 pine, used as a forest prop when needed."
+  },
+  {
+    "file": "lamp.glb",
+    "title": "Streetlight",
+    "creator": "Kay Lousberg",
+    "id": "vPFSLYh6sg",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/vPFSLYh6sg",
+    "requiresAttribution": false,
+    "note": "Streetlight. The CC0 model titled Lamp is a table lamp and does not read as a post."
+  },
+  {
+    "file": "car.glb",
+    "title": "Car",
+    "creator": "Quaternius",
+    "id": "unqqkULtRU",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/unqqkULtRU",
+    "requiresAttribution": false,
+    "note": "CC0 car, scaled down to toy size in the scene."
+  },
+  {
+    "file": "gazebo.glb",
+    "title": "Gazebo",
+    "creator": "Quaternius",
+    "id": "xYZB1TmGMv",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/xYZB1TmGMv",
+    "requiresAttribution": false,
+    "note": "Open timber shelter around the center tree. Closed cottages are a single mesh and would hide the tree."
+  },
+  {
+    "file": "pine-snow.glb",
+    "title": "Pine Tree with Snow",
+    "creator": "Quaternius",
+    "id": "17vQv2X5rh",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/17vQv2X5rh",
+    "requiresAttribution": false,
+    "note": "Snowy pine, kept as an alternate outdoor tree."
+  },
+  {
+    "file": "fireplace.glb",
+    "title": "Fireplace",
+    "creator": "Quaternius",
+    "id": "nzxZYIOCIr",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/nzxZYIOCIr",
+    "requiresAttribution": false,
+    "note": "Living-room fireplace on the back wall."
+  },
+  {
+    "file": "couch.glb",
+    "title": "Couch Medium",
+    "creator": "Quaternius",
+    "id": "mWgQ94zhDZ",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/mWgQ94zhDZ",
+    "requiresAttribution": false,
+    "note": "Medium couch along the left wall."
+  },
+  {
+    "file": "rug.glb",
+    "title": "Round Rug",
+    "creator": "Quaternius",
+    "id": "ZYBzMHnSbM",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/ZYBzMHnSbM",
+    "requiresAttribution": false,
+    "note": "Round rug under the tree and gift ring."
+  },
+  {
+    "file": "floor-lamp.glb",
+    "title": "Light Floor",
+    "creator": "Quaternius",
+    "id": "eBQtooeh43",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/eBQtooeh43",
+    "requiresAttribution": false,
+    "note": "Floor lamp beside the couch."
+  },
+  {
+    "file": "window.glb",
+    "title": "Window Large",
+    "creator": "Quaternius",
+    "id": "EipzkrS9nG",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/EipzkrS9nG",
+    "requiresAttribution": false,
+    "note": "Large window in the right-wall opening."
+  },
+  {
+    "file": "christmas-tree.glb",
+    "title": "Christmas Tree",
+    "creator": "Vice Cooper",
+    "id": "bmiq-VrAaCF",
+    "licence": "CC-BY 3.0",
+    "url": "https://poly.pizza/m/bmiq-VrAaCF",
+    "requiresAttribution": true,
+    "note": "Indoor Christmas tree with star. Living-room centerpiece."
+  },
+  {
+    "file": "train-loco.glb",
+    "title": "Locomotive Front",
+    "creator": "Quaternius",
+    "id": "WY84FHug9s",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/WY84FHug9s",
+    "requiresAttribution": false,
+    "note": "Miniature steam engine on the living-room floor oval."
+  },
+  {
+    "file": "train-wagon.glb",
+    "title": "Locomotive Wagon",
+    "creator": "Quaternius",
+    "id": "JCwr52pnuO",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/JCwr52pnuO",
+    "requiresAttribution": false,
+    "note": "Coal/tender wagon behind the miniature loco."
+  },
+  {
+    "file": "train-carriage.glb",
+    "title": "Locomotive Passenger Carriage",
+    "creator": "Quaternius",
+    "id": "woQPFlzPHM",
+    "licence": "CC0 1.0",
+    "url": "https://poly.pizza/m/woQPFlzPHM",
+    "requiresAttribution": false,
+    "note": "Passenger carriage completing the miniature consist."
+  }
+]

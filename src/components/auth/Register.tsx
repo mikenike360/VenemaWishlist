@@ -6,7 +6,7 @@ import Navigation from '../Navigation';
 import Header from '../Header';
 import Footer from '../Footer';
 import { useToast } from '../Toast';
-import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
+import backgroundMusic from '../../assets/audio/christmas_chill.mp3';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');

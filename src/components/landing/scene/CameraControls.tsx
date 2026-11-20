@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { TREE_CENTER_X, TREE_CENTER_Z, TREE_LOOK_Y } from '../../../lib/roomLayout';
 
 export interface OrbitHold {
   left: boolean;
@@ -16,9 +17,14 @@ interface CameraControlsProps {
   orbit: React.MutableRefObject<OrbitHold>;
 }
 
-const TREE = new THREE.Vector3(0, 0.4, 0);
+const TREE = new THREE.Vector3(TREE_CENTER_X, TREE_LOOK_Y, TREE_CENTER_Z);
 const YAW_SPEED = 1.15;
 const PITCH_SPEED = 0.7;
+/** Allow a bit more swing toward the fireplace (+X side of the tree). */
+const MIN_AZIMUTH = -0.85;
+const MAX_AZIMUTH = 1.05;
+/** Pull search focus from the default viewing side (fireplace-facing). */
+const VIEW_FROM = new THREE.Vector3(0.45, 0, 0.9).normalize();
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -103,7 +109,11 @@ export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease
       }
       offset.current.copy(current.object.position).sub(current.target);
       spherical.current.setFromVector3(offset.current);
-      spherical.current.theta -= yaw * YAW_SPEED * delta;
+      spherical.current.theta = THREE.MathUtils.clamp(
+        spherical.current.theta - yaw * YAW_SPEED * delta,
+        MIN_AZIMUTH,
+        MAX_AZIMUTH,
+      );
       spherical.current.phi = THREE.MathUtils.clamp(
         spherical.current.phi - pitch * PITCH_SPEED * delta,
         current.minPolarAngle,
@@ -118,36 +128,36 @@ export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease
     }
 
     if (!focus) return;
-    focusVec.current.set(focus[0], 0.4, focus[2]);
-    const outward = focusVec.current.clone().setY(0);
-    if (outward.lengthSq() < 0.001) outward.set(0, 0, 1);
-    outward.normalize();
-    desired.current.copy(focusVec.current).addScaledVector(outward, 3.2).setY(2.5);
-    current.target.lerp(focusVec.current, 0.08);
-    current.object.position.lerp(desired.current, 0.08);
+    focusVec.current.set(focus[0], Math.max(focus[1] + 0.25, 0.4), focus[2]);
+    // Stand closer so face nameplates are readable on search focus.
+    desired.current.copy(focusVec.current).addScaledVector(VIEW_FROM, 1.35).setY(1.05);
+    current.target.lerp(focusVec.current, 0.1);
+    current.object.position.lerp(desired.current, 0.1);
     current.update();
   });
 
   return (
     <OrbitControls
       ref={controls}
+      target={[TREE.x, TREE.y, TREE.z]}
       enableZoom={true}
-      enablePan={true}
+      enablePan={false}
       enableRotate={true}
-      minDistance={2.6}
-      maxDistance={50}
-      minPolarAngle={Math.PI / 12}
-      maxPolarAngle={Math.PI / 1.8}
+      minDistance={1.0}
+      maxDistance={5.2}
+      minPolarAngle={Math.PI / 4.2}
+      maxPolarAngle={Math.PI / 2.02}
+      minAzimuthAngle={MIN_AZIMUTH}
+      maxAzimuthAngle={MAX_AZIMUTH}
       autoRotate={false}
       enableDamping
       dampingFactor={0.05}
       rotateSpeed={0.8}
-      panSpeed={0.8}
-      zoomSpeed={1.2}
+      zoomSpeed={1.1}
       mouseButtons={{
         LEFT: THREE.MOUSE.ROTATE,
         MIDDLE: THREE.MOUSE.ROTATE,
-        RIGHT: THREE.MOUSE.PAN,
+        RIGHT: THREE.MOUSE.ROTATE,
       }}
       onStart={() => releaseRef.current()}
     />

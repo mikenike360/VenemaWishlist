@@ -1,96 +1,32 @@
 import React from 'react';
-import { Stars } from '@react-three/drei';
 
 export const Lighting: React.FC = () => {
   return (
     <>
-      {/* Enhanced Lighting */}
-      <ambientLight intensity={0.55} color="#5a6578" />
-      
-      {/* Main directional light (moonlight) with warmer tone */}
-      <directionalLight 
-        position={[10, 15, 5]} 
-        intensity={0.9} 
+      <color attach="background" args={['#120e0c']} />
+      <ambientLight intensity={0.25} color="#ffd8b0" />
+
+      {/* Soft key from the open wall — keep it gentle so local lights own the mood */}
+      <directionalLight
+        position={[0, 3.4, 6]}
+        intensity={0.45}
         castShadow
-        shadow-mapSize-width={4096}
-        shadow-mapSize-height={4096}
-        shadow-camera-far={50}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={30}
-        shadow-camera-bottom={-30}
-        shadow-bias={-0.0001}
-        shadow-normalBias={0.02}
-        shadow-radius={8}
-        color="#FFF8E1"
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={20}
+        shadow-camera-left={-6}
+        shadow-camera-right={6}
+        shadow-camera-top={6}
+        shadow-camera-bottom={-2}
+        shadow-bias={-0.0002}
+        color="#fff1dd"
       />
-      
-      {/* Colored accent lights */}
-      <pointLight 
-        position={[5, 8, 5]} 
-        intensity={1.2} 
-        color="#FFD700" 
-        distance={15}
-        decay={2}
-        castShadow
-      />
-      <pointLight 
-        position={[-5, 8, -5]} 
-        intensity={1.0} 
-        color="#FF6B6B" 
-        distance={15}
-        decay={2}
-      />
-      <pointLight 
-        position={[0, 10, -5]} 
-        intensity={0.8} 
-        color="#4ECDC4" 
-        distance={15}
-        decay={2}
-      />
-      
-      {/* Additional warm lights for atmosphere */}
-      <pointLight 
-        position={[-3, 6, 3]} 
-        intensity={0.6} 
-        color="#FFA500" 
-        distance={12}
-        decay={2}
-      />
-      <pointLight 
-        position={[3, 6, 3]} 
-        intensity={0.6} 
-        color="#FF69B4" 
-        distance={12}
-        decay={2}
-      />
-      
-      {/* Fog for depth with better color */}
-      <fog attach="fog" args={['#2a2a3e', 18, 55]} />
-      
-      {/* Sky with moon */}
-      <Stars radius={100} depth={50} count={10000} factor={4} saturation={0.6} fade speed={0.5} />
-      
-      {/* Moon */}
-      <mesh position={[15, 20, -15]}>
-        <sphereGeometry args={[2, 32, 32]} />
-        <meshStandardMaterial 
-          color="#FFF8E1" 
-          emissive="#FFF8E1"
-          emissiveIntensity={0.3}
-          roughness={0.8}
-          metalness={0.1}
-        />
-      </mesh>
-      {/* Moon glow */}
-      <pointLight
-        position={[15, 20, -15]}
-        color="#FFF8E1"
-        intensity={0.5}
-        distance={40}
-        decay={2}
-      />
+
+      {/* Dim ceiling fill */}
+      <pointLight position={[0, 3.0, 0]} color="#ffe6c4" intensity={0.35} distance={10} decay={2} />
+
+      {/* Cool rim through the window */}
+      <pointLight position={[3.6, 1.6, 0]} color="#9eb6ff" intensity={0.35} distance={7} decay={2} />
     </>
   );
 };
-

@@ -9,8 +9,9 @@ import { OrbitHold } from './scene/CameraControls';
 import Header from '../Header';
 import Footer from '../Footer';
 import { supabase } from '../../lib/supabase';
-import { PresentPerson, profileToPresent, ringPosition } from '../../lib/profiles';
-import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
+import { PresentPerson, profileToPresent, pilePosition } from '../../lib/profiles';
+import { DEFAULT_CAMERA_POSITION } from '../../lib/roomLayout';
+import backgroundMusic from '../../assets/audio/christmas_chill.mp3';
 
 const LandingPage: React.FC = () => {
   // Music state
@@ -33,7 +34,7 @@ const LandingPage: React.FC = () => {
 
   const focusOn = (person: PresentPerson) => {
     const index = people.findIndex((item) => item.id === person.id);
-    if (index >= 0) setFocus(ringPosition(index, people.length));
+    if (index >= 0) setFocus(pilePosition(index, people.length));
   };
 
   const openPerson = (person: PresentPerson) => {
@@ -111,10 +112,13 @@ const LandingPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      setFocus(null);
+      return;
+    }
     if (matches.length === 1) {
       const index = people.findIndex((item) => item.id === matches[0].id);
-      if (index >= 0) setFocus(ringPosition(index, people.length));
+      if (index >= 0) setFocus(pilePosition(index, people.length));
       return;
     }
     setFocus(null);
@@ -122,12 +126,15 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex flex-col">
-      <Header
-        isPlaying={isPlaying}
-        volume={volume}
-        toggleMusic={toggleMusic}
-        setVolume={setVolume}
-      />
+      {/* Above the full-bleed canvas so play/volume stay usable */}
+      <div className="relative z-20">
+        <Header
+          isPlaying={isPlaying}
+          volume={volume}
+          toggleMusic={toggleMusic}
+          setVolume={setVolume}
+        />
+      </div>
       <div className="relative z-20 flex flex-wrap items-center gap-2 px-3 pt-2 pointer-events-auto">
         <input
           type="search"
@@ -150,7 +157,7 @@ const LandingPage: React.FC = () => {
       {/* 3D Scene */}
       <div className="absolute inset-0 z-0">
         <Canvas 
-          camera={{ position: [0, 4.6, 9.2], fov: 52 }} 
+          camera={{ position: DEFAULT_CAMERA_POSITION, fov: 48 }} 
           shadows
           gl={{ 
             antialias: true,

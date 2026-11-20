@@ -9,7 +9,7 @@ import LoadingSkeleton from '../LoadingSkeleton';
 import { useToast } from '../Toast';
 import { useModal } from '../Modal';
 import { Profile } from '../../types';
-import backgroundMusic from '../../assets/audio/jingle_bells.mp3';
+import backgroundMusic from '../../assets/audio/christmas_chill.mp3';
 import michaelImage from '../../assets/images/michael.jpg';
 import amandaImage from '../../assets/images/amanda.jpg';
 import joeyImage from '../../assets/images/joey.jpg';

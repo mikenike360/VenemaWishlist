@@ -1,4 +1,5 @@
 import { Profile, User } from '../types';
+import { TREE_CENTER_X, TREE_CENTER_Z } from './roomLayout';
 import michaelImage from '../assets/images/michael.jpg';
 import amandaImage from '../assets/images/amanda.jpg';
 import joeyImage from '../assets/images/joey.jpg';
@@ -74,9 +75,174 @@ export const profileToPresent = (profile: Profile): PresentPerson => ({
   ...profileToUser(profile),
 });
 
-export const RING_RADIUS = 4.7;
+/** Keep in sync with PersonPresent PRESENT_SCALE */
+const PILE_SCALE = 0.29;
+const BOX_W = 0.7 * PILE_SCALE;
+const BOX_H = 0.5 * PILE_SCALE;
+/** Approx gift top including bow — must stay under FitModel canopy clip. */
+const GIFT_TOP = 0.58 * PILE_SCALE;
+/** Rug top (cylinder center 0.025, height 0.05). */
+export const FLOOR_Y = 0.05;
+/** Half-ish box width — used when sliding a buried gift out of a stack. */
+export const PILE_BOX_W = BOX_W;
+/** Just outside the carved skirt — nest inside the canopy cavity. */
+const TREE_KEEP_OUT = 0.58;
+/** Outer edge of the under-tree heap. */
+const PILE_MAX_R = 0.98;
+/** Horseshoe opens into the room (away from the back-right walls). */
+const OPEN_YAW = Math.atan2(-TREE_CENTER_X, -TREE_CENTER_Z);
+const OPEN_COS = Math.cos(OPEN_YAW);
+const OPEN_SIN = Math.sin(OPEN_YAW);
+/** Radial step between rings — nearly touching for a real pile. */
+const RING_STEP = BOX_W * 1.05;
+/** Bump when pile math changes so HMR cannot reuse a stale cache. */
+const PILE_LAYOUT_REV = 14;
 
-export function ringPosition(index: number, count: number): [number, number, number] {
-  const angle = count === 0 ? 0 : (index / count) * Math.PI * 2;
-  return [Math.sin(angle) * RING_RADIUS, -0.48, Math.cos(angle) * RING_RADIUS];
+function hash01(n: number): number {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+/** Local (lx, lz) with +lz toward the open room, mapped into world XZ. */
+function worldFromOpen(lx: number, lz: number): [number, number] {
+  return [
+    TREE_CENTER_X + lx * OPEN_COS + lz * OPEN_SIN,
+    TREE_CENTER_Z - lx * OPEN_SIN + lz * OPEN_COS,
+  ];
+}
+
+/** Push a point outward if it sits inside the tree keep-out cylinder. */
+function clearOfTree(x: number, z: number): [number, number] {
+  const dx = x - TREE_CENTER_X;
+  const dz = z - TREE_CENTER_Z;
+  const dist = Math.hypot(dx, dz);
+  if (dist >= TREE_KEEP_OUT) return [x, z];
+  const scale = TREE_KEEP_OUT / Math.max(dist, 1e-4);
+  return [TREE_CENTER_X + dx * scale, TREE_CENTER_Z + dz * scale];
+}
+
+export interface PilePlacement {
+  position: [number, number, number];
+  yaw: number;
+  /** Index of the gift this one rests on, if any. */
+  supportIndex: number | null;
+}
+
+type Occupied = { x: number; z: number; top: number; stack: number; index: number };
+
+/** Build a tight under-tree heap inside the carved canopy cavity. */
+function buildPile(count: number): PilePlacement[] {
+  const placements: PilePlacement[] = [];
+  const occupied: Occupied[] = [];
+  // Floor fills the footprint; remaining gifts stack on the outer ring only.
+  const floorCount = Math.min(count, Math.max(14, Math.ceil(count * 0.65)));
+  const ringCount = 2;
+  const stackMinR = TREE_KEEP_OUT + RING_STEP * 0.6;
+
+  for (let i = 0; i < count; i++) {
+    const h1 = hash01(i + 1 + PILE_LAYOUT_REV);
+    const h2 = hash01(i + 17 + PILE_LAYOUT_REV);
+    const h3 = hash01(i + 41 + PILE_LAYOUT_REV);
+    const yaw = (h1 - 0.5) * Math.PI * 0.28;
+
+    let x: number;
+    let z: number;
+    let y: number;
+
+    if (i < floorCount || occupied.length === 0) {
+      const ring = i % ringCount;
+      const onRing = Math.floor(i / ringCount);
+      const ringSlots = Math.max(Math.ceil(floorCount / ringCount), 1);
+      const t = ringSlots <= 1 ? 0.5 : onRing / Math.max(ringSlots - 1, 1);
+      // Wrap the trunk without going behind into the wall silhouette.
+      const angle = -Math.PI * 0.55 + t * Math.PI + (h2 - 0.5) * 0.035;
+      const radius = Math.min(
+        TREE_KEEP_OUT + 0.04 + ring * RING_STEP + h1 * 0.03,
+        PILE_MAX_R,
+      );
+      [x, z] = worldFromOpen(Math.sin(angle) * radius, Math.cos(angle) * radius);
+      [x, z] = clearOfTree(x, z);
+      y = FLOOR_Y;
+      const index = placements.length;
+      placements.push({ position: [x, y, z], yaw, supportIndex: null });
+      occupied.push({ x, z, top: y + BOX_H, stack: 0, index });
+      continue;
+    }
+
+    // One stack max, outer ring only — bows stay under carve floorY (~0.48).
+    const candidates = occupied.filter((box) => {
+      if (box.stack >= 1) return false;
+      const dist = Math.hypot(box.x - TREE_CENTER_X, box.z - TREE_CENTER_Z);
+      return dist >= stackMinR && box.top + GIFT_TOP < 0.46;
+    });
+    if (candidates.length === 0) {
+      const t = 0.2 + h2 * 0.6;
+      const angle = -Math.PI * 0.5 + t * Math.PI;
+      const radius = Math.min(TREE_KEEP_OUT + RING_STEP * (0.55 + h1 * 0.35), PILE_MAX_R);
+      [x, z] = worldFromOpen(Math.sin(angle) * radius, Math.cos(angle) * radius);
+      [x, z] = clearOfTree(x, z);
+      y = FLOOR_Y;
+      const index = placements.length;
+      placements.push({ position: [x, y, z], yaw, supportIndex: null });
+      occupied.push({ x, z, top: y + BOX_H, stack: 0, index });
+      continue;
+    }
+    const pick = Math.floor(h2 * candidates.length) % candidates.length;
+    const support = candidates[pick];
+
+    x = support.x + (h1 - 0.5) * BOX_W * 0.2;
+    z = support.z + (h3 - 0.5) * BOX_W * 0.2;
+    [x, z] = clearOfTree(x, z);
+    y = support.top - 0.012;
+    const top = y + BOX_H;
+
+    support.top = top;
+    support.stack += 1;
+
+    const index = placements.length;
+    placements.push({ position: [x, y, z], yaw, supportIndex: support.index });
+    occupied.push({ x, z, top, stack: support.stack, index });
+  }
+
+  return placements;
+}
+
+let pileCacheCount = -1;
+let pileCacheRev = -1;
+let pileCache: PilePlacement[] = [];
+let ridersCache: number[][] = [];
+
+function rebuildPileCache(count: number) {
+  pileCache = buildPile(count);
+  pileCacheCount = count;
+  pileCacheRev = PILE_LAYOUT_REV;
+  ridersCache = pileCache.map(() => []);
+  pileCache.forEach((placement, index) => {
+    if (placement.supportIndex == null) return;
+    ridersCache[placement.supportIndex]?.push(index);
+  });
+}
+
+/** Deterministic under-tree gift heap (stable across reloads). */
+export function pilePlacement(index: number, count: number): PilePlacement {
+  if (count !== pileCacheCount || pileCacheRev !== PILE_LAYOUT_REV) {
+    rebuildPileCache(count);
+  }
+  return (
+    pileCache[index] ?? {
+      position: [TREE_CENTER_X, FLOOR_Y, TREE_CENTER_Z],
+      yaw: 0,
+      supportIndex: null,
+    }
+  );
+}
+
+export function pilePosition(index: number, count: number): [number, number, number] {
+  return pilePlacement(index, count).position;
+}
+
+/** Gift indices resting directly on top of `index`. */
+export function pileRiders(index: number, count: number): number[] {
+  pilePlacement(0, count);
+  return ridersCache[index] ?? [];
 }
