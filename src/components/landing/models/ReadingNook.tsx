@@ -13,14 +13,18 @@ const WOOD_TOP = '#8b5a32';
  * Open floor left of the gifts, facing the tree so the nook reads in the
  * default camera with the train parked in front.
  */
-const RECLINER_POSITION: [number, number, number] = [1.1, 0, -1.2];
-/** Camera-side of the chair so the cocoa reads in the default view. */
-const TABLE_POSITION: [number, number, number] = [1.55, 0, -1.0];
+const RECLINER_POSITION: [number, number, number] = [0.85, 0, -1.75];
 /** Footrest (+Z) points at the tree. */
 const RECLINER_YAW = Math.atan2(
   TREE_POSITION[0] - RECLINER_POSITION[0],
   TREE_POSITION[2] - RECLINER_POSITION[2],
 );
+
+/** Between the recliner and the toy train, clear of both. */
+const TABLE_POSITION: [number, number, number] = [1.72, 0, -1.4];
+
+const TABLE_TOP_Y = 0.4;
+const TABLE_RADIUS = 0.14;
 
 function SteamWisp({ phase, x }: { phase: number; x: number }) {
   const mesh = useRef<THREE.Mesh>(null);
@@ -44,7 +48,7 @@ function SteamWisp({ phase, x }: { phase: number; x: number }) {
 
 function CocoaMug() {
   return (
-    <group position={[-0.05, 0.434, 0.02]}>
+    <group position={[-0.04, TABLE_TOP_Y + 0.014, 0.015]}>
       <mesh castShadow position={[0, 0.035, 0]}>
         <cylinderGeometry args={[0.032, 0.028, 0.07, 14]} />
         <meshStandardMaterial color="#c41e2a" roughness={0.55} />
@@ -90,32 +94,31 @@ function Cookie({ position }: { position: [number, number, number] }) {
 }
 
 function SideTable() {
-  const top = 0.42;
   const legs: [number, number][] = [
-    [-0.13, -0.13],
-    [0.13, -0.13],
-    [-0.13, 0.13],
-    [0.13, 0.13],
+    [-0.1, -0.1],
+    [0.1, -0.1],
+    [-0.1, 0.1],
+    [0.1, 0.1],
   ];
   return (
     <group position={TABLE_POSITION}>
       {legs.map(([x, z]) => (
-        <mesh key={`${x}-${z}`} position={[x, top / 2, z]} castShadow>
-          <cylinderGeometry args={[0.015, 0.018, top, 8]} />
+        <mesh key={`${x}-${z}`} position={[x, TABLE_TOP_Y / 2, z]} castShadow>
+          <cylinderGeometry args={[0.012, 0.015, TABLE_TOP_Y, 8]} />
           <meshStandardMaterial color={WOOD} roughness={0.78} />
         </mesh>
       ))}
-      <mesh position={[0, top, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.2, 0.2, 0.028, 20]} />
+      <mesh position={[0, TABLE_TOP_Y, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[TABLE_RADIUS, TABLE_RADIUS, 0.024, 20]} />
         <meshStandardMaterial color={WOOD_TOP} roughness={0.68} />
       </mesh>
-      <mesh position={[0.07, top + 0.02, -0.015]} receiveShadow>
-        <cylinderGeometry args={[0.06, 0.06, 0.012, 20]} />
+      <mesh position={[0.055, TABLE_TOP_Y + 0.016, -0.01]} receiveShadow>
+        <cylinderGeometry args={[0.05, 0.05, 0.01, 20]} />
         <meshStandardMaterial color="#f4efe2" roughness={0.5} />
       </mesh>
-      <Cookie position={[0.05, top + 0.032, 0.008]} />
-      <Cookie position={[0.088, top + 0.032, -0.028]} />
-      <Cookie position={[0.078, top + 0.032, 0.02]} />
+      <Cookie position={[0.04, TABLE_TOP_Y + 0.027, 0.006]} />
+      <Cookie position={[0.07, TABLE_TOP_Y + 0.027, -0.022]} />
+      <Cookie position={[0.062, TABLE_TOP_Y + 0.027, 0.016]} />
       <CocoaMug />
     </group>
   );
@@ -125,44 +128,44 @@ function Recliner() {
   return (
     <group position={RECLINER_POSITION} rotation={[0, RECLINER_YAW, 0]}>
       {[
-        [-0.22, 0.1, -0.16],
-        [0.22, 0.1, -0.16],
-        [-0.22, 0.1, 0.16],
-        [0.22, 0.1, 0.16],
+        [-0.18, 0.09, -0.13],
+        [0.18, 0.09, -0.13],
+        [-0.18, 0.09, 0.13],
+        [0.18, 0.09, 0.13],
       ].map((position) => (
         <mesh key={position.join(',')} position={position as [number, number, number]} castShadow>
-          <cylinderGeometry args={[0.025, 0.03, 0.2, 8]} />
+          <cylinderGeometry args={[0.022, 0.026, 0.18, 8]} />
           <meshStandardMaterial color={WOOD} roughness={0.8} />
         </mesh>
       ))}
-      <mesh position={[0, 0.28, 0.02]} castShadow>
-        <boxGeometry args={[0.62, 0.14, 0.52]} />
+      <mesh position={[0, 0.26, 0.02]} castShadow>
+        <boxGeometry args={[0.5, 0.12, 0.42]} />
         <meshStandardMaterial color={FABRIC} roughness={0.86} />
       </mesh>
-      <mesh position={[0, 0.36, 0.04]} castShadow>
-        <boxGeometry args={[0.5, 0.06, 0.4]} />
+      <mesh position={[0, 0.33, 0.03]} castShadow>
+        <boxGeometry args={[0.4, 0.05, 0.32]} />
         <meshStandardMaterial color={CUSHION} roughness={0.8} />
       </mesh>
-      <mesh position={[0, 0.62, -0.22]} rotation={[-0.32, 0, 0]} castShadow>
-        <boxGeometry args={[0.62, 0.55, 0.1]} />
+      <mesh position={[0, 0.56, -0.18]} rotation={[-0.32, 0, 0]} castShadow>
+        <boxGeometry args={[0.5, 0.46, 0.09]} />
         <meshStandardMaterial color={FABRIC} roughness={0.86} />
       </mesh>
-      <mesh position={[0, 0.78, -0.16]} rotation={[-0.32, 0, 0]} castShadow>
-        <boxGeometry args={[0.36, 0.16, 0.06]} />
+      <mesh position={[0, 0.7, -0.13]} rotation={[-0.32, 0, 0]} castShadow>
+        <boxGeometry args={[0.3, 0.14, 0.05]} />
         <meshStandardMaterial color={CUSHION} roughness={0.8} />
       </mesh>
-      {[-0.32, 0.32].map((x) => (
-        <mesh key={x} position={[x, 0.42, 0.02]} castShadow>
-          <boxGeometry args={[0.1, 0.22, 0.52]} />
+      {[-0.26, 0.26].map((x) => (
+        <mesh key={x} position={[x, 0.38, 0.02]} castShadow>
+          <boxGeometry args={[0.08, 0.18, 0.42]} />
           <meshStandardMaterial color={FABRIC} roughness={0.86} />
         </mesh>
       ))}
-      <mesh position={[0, 0.22, 0.42]} rotation={[0.4, 0, 0]} castShadow>
-        <boxGeometry args={[0.46, 0.08, 0.28]} />
+      <mesh position={[0, 0.2, 0.34]} rotation={[0.4, 0, 0]} castShadow>
+        <boxGeometry args={[0.38, 0.07, 0.22]} />
         <meshStandardMaterial color={FABRIC} roughness={0.86} />
       </mesh>
-      <mesh position={[0.36, 0.48, 0.06]} rotation={[0.5, 0.2, 0.7]} castShadow>
-        <boxGeometry args={[0.18, 0.035, 0.34]} />
+      <mesh position={[0.3, 0.44, 0.05]} rotation={[0.5, 0.2, 0.7]} castShadow>
+        <boxGeometry args={[0.15, 0.03, 0.28]} />
         <meshStandardMaterial color={THROW} roughness={0.92} />
       </mesh>
     </group>

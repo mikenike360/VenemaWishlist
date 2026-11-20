@@ -4,17 +4,19 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { villageModels } from './FitModel';
 
-/** On the floor in front of the recliner, toward the tree. */
-const GROUP_POSITION: [number, number, number] = [1.55, 0, -1.7];
-const CAR_HEIGHT = 0.11;
+/** Open floor just outside the rug, toward the tree from the nook. */
+const GROUP_POSITION: [number, number, number] = [2.08, 0, -1.12];
+const CAR_HEIGHT = 0.055;
 const BRIGHTEN = 1.35;
 const LAPS_PER_SECOND = 0.045;
 /** Arc spacing between cars (radians on the oval). */
-const CAR_GAP = 0.72;
-const RX = 0.42;
-const RZ = 0.34;
-const GAUGE = 0.026;
-const RAIL_Y = 0.01;
+const CAR_GAP = 0.9;
+const RX = 0.2;
+const RZ = 0.16;
+const GAUGE = 0.014;
+const RAIL_Y = 0.006;
+const RAIL_TUBE = 0.003;
+const TIE_SIZE: [number, number, number] = [0.034, 0.004, 0.01];
 /**
  * Quaternius trains are long on X. The nose points along -X in the GLB, so
  * align local -X with the ellipse tangent: R_y(θ)·(-1,0,0) = (-cos θ, 0, sin θ).
@@ -96,16 +98,16 @@ function buildRails() {
       pts.push(new THREE.Vector3(x + nx * GAUGE * side, RAIL_Y, z + nz * GAUGE * side));
     }
     const curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.1);
-    rails.push(new THREE.TubeGeometry(curve, 96, 0.006, 6, true));
+    rails.push(new THREE.TubeGeometry(curve, 96, RAIL_TUBE, 6, true));
   }
 
   const ties: { position: [number, number, number]; yaw: number }[] = [];
-  const tieCount = 28;
+  const tieCount = 24;
   for (let i = 0; i < tieCount; i++) {
     const theta = (i / tieCount) * Math.PI * 2;
     const { x, z, tx, tz } = pointOnEllipse(theta, RX, RZ);
     ties.push({
-      position: [x, 0.004, z],
+      position: [x, 0.003, z],
       yaw: Math.atan2(tx, tz),
     });
   }
@@ -146,7 +148,7 @@ export function ToyTrain() {
     <group position={GROUP_POSITION}>
       {track.ties.map((tie, index) => (
         <mesh key={`tie-${index}`} position={tie.position} rotation={[0, tie.yaw, 0]} receiveShadow>
-          <boxGeometry args={[0.07, 0.008, 0.018]} />
+          <boxGeometry args={TIE_SIZE} />
           <meshStandardMaterial color="#5a3a22" roughness={0.9} />
         </mesh>
       ))}

@@ -13,7 +13,10 @@ export interface PilePose {
 }
 
 const LIFT = 0.1;
-const SLIDE = PILE_BOX_W * 0.85;
+/** Extra lift when a stacked gift is revealed so it clears parked riders. */
+const LIFT_BURIED = 0.22;
+/** How far riders hop sideways (along the pile arc) — not into the room. */
+const RIDER_PARK = PILE_BOX_W * 0.95;
 
 let pileCount = 0;
 let hoverIndex: number | null = null;
@@ -37,18 +40,23 @@ function recomputeTargets() {
   const rest = restingPose(active);
 
   if (riders.length > 0) {
+    // Keep the hovered gift in place — radial slide was pushing boxes into the
+    // train / nook. Park riders beside the stack along the pile tangent.
+    targets[active] = { x: rest.x, y: rest.y + LIFT_BURIED, z: rest.z };
     const dx = rest.x - TREE_CENTER_X;
     const dz = rest.z - TREE_CENTER_Z;
     const len = Math.hypot(dx, dz) || 1;
-    targets[active] = {
-      x: rest.x + (dx / len) * SLIDE,
-      y: rest.y,
-      z: rest.z + (dz / len) * SLIDE,
-    };
-    for (const rider of riders) {
-      const riderRest = restingPose(rider);
-      targets[rider] = { x: riderRest.x, y: FLOOR_Y, z: riderRest.z };
-    }
+    const tx = -dz / len;
+    const tz = dx / len;
+    riders.forEach((rider, order) => {
+      const side = order % 2 === 0 ? 1 : -1;
+      const step = RIDER_PARK * (1 + Math.floor(order / 2) * 0.35);
+      targets[rider] = {
+        x: rest.x + tx * side * step,
+        y: FLOOR_Y,
+        z: rest.z + tz * side * step,
+      };
+    });
     return;
   }
 

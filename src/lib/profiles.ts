@@ -87,16 +87,24 @@ export const FLOOR_Y = 0.05;
 export const PILE_BOX_W = BOX_W;
 /** Just outside the carved skirt — nest inside the canopy cavity. */
 const TREE_KEEP_OUT = 0.58;
-/** Outer edge of the under-tree heap. */
-const PILE_MAX_R = 0.98;
+/** Outer edge for initial placement (can sit slightly past the rug). */
+const PILE_MAX_R = 1.35;
 /** Horseshoe opens into the room (away from the back-right walls). */
 const OPEN_YAW = Math.atan2(-TREE_CENTER_X, -TREE_CENTER_Z);
 const OPEN_COS = Math.cos(OPEN_YAW);
 const OPEN_SIN = Math.sin(OPEN_YAW);
-/** Radial step between rings — nearly touching for a real pile. */
-const RING_STEP = BOX_W * 1.05;
+/** Radial step between rings — leave a clear gap between boxes. */
+const RING_STEP = BOX_W * 1.8;
 /** Bump when pile math changes so HMR cannot reuse a stale cache. */
-const PILE_LAYOUT_REV = 14;
+const PILE_LAYOUT_REV = 25;
+/** Minimum center distance between floor gifts (boxes are BOX_W square). */
+const FLOOR_MIN_GAP = BOX_W * 2.15;
+/**
+ * Open-local horseshoe: starts on the window flank (still tag-readable) and
+ * wraps into the back-right corner behind the trunk from the default view.
+ */
+const PILE_ARC_START = Math.PI * 0.75;
+const PILE_ARC_SPAN = Math.PI * 1.05;
 
 function hash01(n: number): number {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
@@ -130,16 +138,82 @@ export interface PilePlacement {
 
 type Occupied = { x: number; z: number; top: number; stack: number; index: number };
 
-/** Build a tight under-tree heap inside the carved canopy cavity. */
+/** Push floor gifts apart so boxes are not visually fused. */
+function separateFloorGifts(placements: PilePlacement[], occupied: Occupied[]) {
+  for (let pass = 0; pass < 10; pass++) {
+    let moved = false;
+    for (let a = 0; a < occupied.length; a++) {
+      for (let b = a + 1; b < occupied.length; b++) {
+        const dx = occupied[b].x - occupied[a].x;
+        const dz = occupied[b].z - occupied[a].z;
+        const dist = Math.hypot(dx, dz);
+        if (dist >= FLOOR_MIN_GAP || dist < 1e-5) continue;
+        const push = ((FLOOR_MIN_GAP - dist) / dist) * 0.5;
+        occupied[a].x -= dx * push;
+        occupied[a].z -= dz * push;
+        occupied[b].x += dx * push;
+        occupied[b].z += dz * push;
+        moved = true;
+      }
+    }
+    for (const box of occupied) {
+      // Keep clear of the trunk. Soft outer bound only — a hard max-R clamp
+      // would collapse separation back onto a dense ring.
+      let [x, z] = clearOfTree(box.x, box.z);
+      const dx = x - TREE_CENTER_X;
+      const dz = z - TREE_CENTER_Z;
+      const dist = Math.hypot(dx, dz);
+      const softMax = PILE_MAX_R + 0.22;
+      if (dist > softMax) {
+        const s = softMax / dist;
+        x = TREE_CENTER_X + dx * s;
+        z = TREE_CENTER_Z + dz * s;
+      }
+      box.x = x;
+      box.z = z;
+      const placement = placements[box.index];
+      placement.position[0] = box.x;
+      placement.position[2] = box.z;
+    }
+    if (!moved) break;
+  }
+}
+
+/** Build a spaced under-tree heap inside the carved canopy cavity. */
 function buildPile(count: number): PilePlacement[] {
   const placements: PilePlacement[] = [];
   const occupied: Occupied[] = [];
-  // Floor fills the footprint; remaining gifts stack on the outer ring only.
-  const floorCount = Math.min(count, Math.max(14, Math.ceil(count * 0.65)));
-  const ringCount = 2;
-  const stackMinR = TREE_KEEP_OUT + RING_STEP * 0.6;
+  // Prefer a single spaced layer; only overflow stacks when needed.
+  const floorCount = Math.min(count, Math.max(14, Math.ceil(count * 0.82)));
+  const ringCount = 3;
+  const stackMinR = TREE_KEEP_OUT + RING_STEP * 0.55;
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < floorCount; i++) {
+    const h1 = hash01(i + 1 + PILE_LAYOUT_REV);
+    const h2 = hash01(i + 17 + PILE_LAYOUT_REV);
+    const yaw = (h1 - 0.5) * Math.PI * 0.28;
+    const ring = i % ringCount;
+    const onRing = Math.floor(i / ringCount);
+    const ringSlots = Math.max(Math.ceil(floorCount / ringCount), 1);
+    const t = ringSlots <= 1 ? 0.5 : onRing / Math.max(ringSlots - 1, 1);
+    // Stagger rings so they are not stacked on the same angles.
+    const ringNudge = (ring / ringCount) * (1 / Math.max(ringSlots, 1));
+    const angle =
+      PILE_ARC_START + (t + ringNudge) * PILE_ARC_SPAN + (h2 - 0.5) * 0.05;
+    const radius = Math.min(
+      TREE_KEEP_OUT + 0.08 + ring * RING_STEP + h1 * 0.05,
+      PILE_MAX_R,
+    );
+    let [x, z] = worldFromOpen(Math.sin(angle) * radius, Math.cos(angle) * radius);
+    [x, z] = clearOfTree(x, z);
+    const index = placements.length;
+    placements.push({ position: [x, FLOOR_Y, z], yaw, supportIndex: null });
+    occupied.push({ x, z, top: FLOOR_Y + BOX_H, stack: 0, index });
+  }
+
+  separateFloorGifts(placements, occupied);
+
+  for (let i = floorCount; i < count; i++) {
     const h1 = hash01(i + 1 + PILE_LAYOUT_REV);
     const h2 = hash01(i + 17 + PILE_LAYOUT_REV);
     const h3 = hash01(i + 41 + PILE_LAYOUT_REV);
@@ -149,26 +223,6 @@ function buildPile(count: number): PilePlacement[] {
     let z: number;
     let y: number;
 
-    if (i < floorCount || occupied.length === 0) {
-      const ring = i % ringCount;
-      const onRing = Math.floor(i / ringCount);
-      const ringSlots = Math.max(Math.ceil(floorCount / ringCount), 1);
-      const t = ringSlots <= 1 ? 0.5 : onRing / Math.max(ringSlots - 1, 1);
-      // Wrap the trunk without going behind into the wall silhouette.
-      const angle = -Math.PI * 0.55 + t * Math.PI + (h2 - 0.5) * 0.035;
-      const radius = Math.min(
-        TREE_KEEP_OUT + 0.04 + ring * RING_STEP + h1 * 0.03,
-        PILE_MAX_R,
-      );
-      [x, z] = worldFromOpen(Math.sin(angle) * radius, Math.cos(angle) * radius);
-      [x, z] = clearOfTree(x, z);
-      y = FLOOR_Y;
-      const index = placements.length;
-      placements.push({ position: [x, y, z], yaw, supportIndex: null });
-      occupied.push({ x, z, top: y + BOX_H, stack: 0, index });
-      continue;
-    }
-
     // One stack max, outer ring only — bows stay under carve floorY (~0.48).
     const candidates = occupied.filter((box) => {
       if (box.stack >= 1) return false;
@@ -177,7 +231,7 @@ function buildPile(count: number): PilePlacement[] {
     });
     if (candidates.length === 0) {
       const t = 0.2 + h2 * 0.6;
-      const angle = -Math.PI * 0.5 + t * Math.PI;
+      const angle = PILE_ARC_START + t * PILE_ARC_SPAN;
       const radius = Math.min(TREE_KEEP_OUT + RING_STEP * (0.55 + h1 * 0.35), PILE_MAX_R);
       [x, z] = worldFromOpen(Math.sin(angle) * radius, Math.cos(angle) * radius);
       [x, z] = clearOfTree(x, z);
@@ -190,8 +244,8 @@ function buildPile(count: number): PilePlacement[] {
     const pick = Math.floor(h2 * candidates.length) % candidates.length;
     const support = candidates[pick];
 
-    x = support.x + (h1 - 0.5) * BOX_W * 0.2;
-    z = support.z + (h3 - 0.5) * BOX_W * 0.2;
+    x = support.x + (h1 - 0.5) * BOX_W * 0.15;
+    z = support.z + (h3 - 0.5) * BOX_W * 0.15;
     [x, z] = clearOfTree(x, z);
     y = support.top - 0.012;
     const top = y + BOX_H;
