@@ -5,23 +5,22 @@ import { TREE_POSITION } from '../../../lib/roomLayout';
 
 const FABRIC = '#6e2430';
 const CUSHION = '#f3ead7';
-const THROW = '#8f3a3a';
 const WOOD = '#5c3b24';
 const WOOD_TOP = '#8b5a32';
 
 /**
  * Open floor left of the gifts, facing the tree so the nook reads in the
- * default camera with the train parked in front.
+ * default camera with the trunk train looping under the canopy.
  */
-const RECLINER_POSITION: [number, number, number] = [0.85, 0, -1.75];
+const RECLINER_POSITION: [number, number, number] = [0.95, 0, -1.55];
 /** Footrest (+Z) points at the tree. */
 const RECLINER_YAW = Math.atan2(
   TREE_POSITION[0] - RECLINER_POSITION[0],
   TREE_POSITION[2] - RECLINER_POSITION[2],
 );
 
-/** Between the recliner and the toy train, clear of both. */
-const TABLE_POSITION: [number, number, number] = [1.72, 0, -1.4];
+/** Beside the chair toward the tree/camera — clear of the armrest. */
+const TABLE_POSITION: [number, number, number] = [1.7, 0, -1.15];
 
 const TABLE_TOP_Y = 0.4;
 const TABLE_RADIUS = 0.14;
@@ -40,8 +39,8 @@ function SteamWisp({ phase, x }: { phase: number; x: number }) {
 
   return (
     <mesh ref={mesh} position={[x, 0.09, 0]}>
-      <sphereGeometry args={[0.02, 8, 8]} />
-      <meshBasicMaterial color="#f7f1e8" transparent opacity={0.3} depthWrite={false} />
+      <sphereGeometry args={[0.014, 8, 8]} />
+      <meshBasicMaterial color="#f7f1e8" transparent opacity={0.22} depthWrite={false} depthTest />
     </mesh>
   );
 }
@@ -150,23 +149,19 @@ function Recliner() {
         <boxGeometry args={[0.5, 0.46, 0.09]} />
         <meshStandardMaterial color={FABRIC} roughness={0.86} />
       </mesh>
-      <mesh position={[0, 0.7, -0.13]} rotation={[-0.32, 0, 0]} castShadow>
-        <boxGeometry args={[0.3, 0.14, 0.05]} />
+      <mesh position={[0, 0.68, -0.12]} rotation={[-0.32, 0, 0]} castShadow>
+        <boxGeometry args={[0.32, 0.12, 0.04]} />
         <meshStandardMaterial color={CUSHION} roughness={0.8} />
       </mesh>
-      {[-0.26, 0.26].map((x) => (
+      {[-0.25, 0.25].map((x) => (
         <mesh key={x} position={[x, 0.38, 0.02]} castShadow>
-          <boxGeometry args={[0.08, 0.18, 0.42]} />
+          <boxGeometry args={[0.08, 0.18, 0.4]} />
           <meshStandardMaterial color={FABRIC} roughness={0.86} />
         </mesh>
       ))}
       <mesh position={[0, 0.2, 0.34]} rotation={[0.4, 0, 0]} castShadow>
         <boxGeometry args={[0.38, 0.07, 0.22]} />
         <meshStandardMaterial color={FABRIC} roughness={0.86} />
-      </mesh>
-      <mesh position={[0.3, 0.44, 0.05]} rotation={[0.5, 0.2, 0.7]} castShadow>
-        <boxGeometry args={[0.15, 0.03, 0.28]} />
-        <meshStandardMaterial color={THROW} roughness={0.92} />
       </mesh>
     </group>
   );

@@ -76,6 +76,7 @@ export const PersonPresent: React.FC<PersonPresentProps> = ({
 }) => {
   const rootRef = useRef<THREE.Group>(null);
   const giftRef = useRef<THREE.Group>(null);
+  const clearTouchHover = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hovered, setHovered] = useState(false);
   const giftColor = useMemo(() => giftColors[colorIndex(person.name, giftColors.length)], [person.name]);
   const ribbonColor = useMemo(() => ribbonColors[colorIndex(person.name + 'ribbon', ribbonColors.length)], [person.name]);
@@ -87,12 +88,43 @@ export const PersonPresent: React.FC<PersonPresentProps> = ({
 
   useEffect(() => () => nameTexture.dispose(), [nameTexture]);
 
+  useEffect(
+    () => () => {
+      if (clearTouchHover.current) clearTimeout(clearTouchHover.current);
+    },
+    [],
+  );
+
   useEffect(() => {
     ensurePileMotion(pileCount);
     if (rootRef.current) {
       rootRef.current.position.set(position[0], position[1], position[2]);
     }
   }, [pileCount, position]);
+
+  const claimHover = () => {
+    if (clearTouchHover.current) {
+      clearTimeout(clearTouchHover.current);
+      clearTouchHover.current = null;
+    }
+    setHovered(true);
+    setPileHoverIndex(index);
+  };
+
+  const releaseHover = (delayMs = 0) => {
+    if (clearTouchHover.current) clearTimeout(clearTouchHover.current);
+    if (delayMs <= 0) {
+      setHovered(false);
+      clearPileHoverIndex(index);
+      return;
+    }
+    // Touch has no lasting hover — keep the lift visible briefly after tap.
+    clearTouchHover.current = setTimeout(() => {
+      setHovered(false);
+      clearPileHoverIndex(index);
+      clearTouchHover.current = null;
+    }, delayMs);
+  };
 
   useFrame(() => {
     ensurePileMotion(pileCount);
@@ -115,21 +147,40 @@ export const PersonPresent: React.FC<PersonPresentProps> = ({
       position={position}
       onClick={(event) => {
         event.stopPropagation();
+        claimHover();
         onSelect(person);
+        // Keep the peek visible while the card opens, then settle.
+        releaseHover(800);
       }}
-      onPointerOver={(event) => {
+      onPointerDown={(event) => {
         // Only the frontmost hit may claim hover — stops stacked gifts fighting.
         if (event.intersections[0]?.eventObject !== event.eventObject) return;
         event.stopPropagation();
-        setHovered(true);
-        setPileHoverIndex(index);
+        claimHover();
+        if (event.pointerType === 'mouse') {
+          document.body.style.cursor = 'pointer';
+        }
+      }}
+      onPointerOver={(event) => {
+        if (event.pointerType === 'touch' || event.pointerType === 'pen') return;
+        if (event.intersections[0]?.eventObject !== event.eventObject) return;
+        event.stopPropagation();
+        claimHover();
         document.body.style.cursor = 'pointer';
       }}
       onPointerOut={(event) => {
         event.stopPropagation();
-        setHovered(false);
-        clearPileHoverIndex(index);
+        if (event.pointerType === 'touch' || event.pointerType === 'pen') {
+          releaseHover(450);
+          return;
+        }
+        releaseHover(0);
         document.body.style.cursor = 'auto';
+      }}
+      onPointerUp={(event) => {
+        if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+        // Finger lift ends "hover"; delay so riders still animate open.
+        releaseHover(450);
       }}
     >
       <group ref={giftRef} rotation={[0, yaw, 0]} scale={PRESENT_SCALE}>

@@ -4,20 +4,46 @@ import { Scene } from './scene/Scene';
 import { LandingStyles } from './ui/LandingStyles';
 import { PresentPanel } from './ui/PresentPanel';
 import { PeopleDrawer } from './ui/PeopleDrawer';
+import { FamilyFinder } from './ui/FamilyFinder';
 import { OrbitPad } from './ui/OrbitPad';
 import { OrbitHold } from './scene/CameraControls';
-import Header from '../Header';
 import Footer from '../Footer';
+import { LandingChrome } from './ui/LandingChrome';
 import { supabase } from '../../lib/supabase';
 import { PresentPerson, profileToPresent, pilePosition } from '../../lib/profiles';
-import { DEFAULT_CAMERA_POSITION } from '../../lib/roomLayout';
+import { homeCameraFov, homeCameraPosition } from '../../lib/roomLayout';
 import backgroundMusic from '../../assets/audio/christmas_chill.mp3';
 
+const MUSIC_VOLUME_KEY = 'venema.music.volume';
+const MUSIC_MUTED_KEY = 'venema.music.muted';
+
+function readStoredVolume(): number {
+  try {
+    const raw = localStorage.getItem(MUSIC_VOLUME_KEY);
+    if (raw == null) return 0.5;
+    const value = Number(raw);
+    return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0.5;
+  } catch {
+    return 0.5;
+  }
+}
+
+function readStoredMuted(): boolean {
+  try {
+    return localStorage.getItem(MUSIC_MUTED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 const LandingPage: React.FC = () => {
-  // Music state
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(0.5);
+  // Music state — prefer playing; browsers may block until a gesture.
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [volume, setVolume] = useState(readStoredVolume);
+  const [muted, setMuted] = useState(readStoredMuted);
+  const volumeBeforeMute = useRef(readStoredVolume());
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const unlockAttempted = useRef(false);
   const [people, setPeople] = useState<PresentPerson[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -26,6 +52,10 @@ const LandingPage: React.FC = () => {
   const [homeRequest, setHomeRequest] = useState(0);
   const [showPeople, setShowPeople] = useState(false);
   const orbit = useRef<OrbitHold>({ left: false, right: false, up: false, down: false });
+  const [cameraBoot] = useState(() => ({
+    position: homeCameraPosition(),
+    fov: homeCameraFov(),
+  }));
 
   const matches = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -52,34 +82,56 @@ const LandingPage: React.FC = () => {
     if (!audioRef.current) {
       audioRef.current = new Audio(backgroundMusic);
       audioRef.current.loop = true;
-      audioRef.current.volume = 0.5;
       audioRef.current.preload = 'auto';
     }
   }, []);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(MUSIC_VOLUME_KEY, String(volume));
+      localStorage.setItem(MUSIC_MUTED_KEY, muted ? '1' : '0');
+    } catch {
+      // ignore quota / private mode
+    }
+  }, [volume, muted]);
+
   // Effect to handle music play/pause and volume
   useEffect(() => {
     if (!audioRef.current) return;
-    
+
     const audio = audioRef.current;
-    audio.volume = volume;
-    
+    audio.volume = muted ? 0 : volume;
+
     if (isPlaying) {
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Audio is playing successfully
-          })
-          .catch((error) => {
-            console.error('Error playing audio:', error);
-            setIsPlaying(false);
-          });
+        playPromise.catch(() => {
+          // Autoplay blocked — wait for first user gesture (below).
+          setIsPlaying(false);
+        });
       }
     } else {
       audio.pause();
     }
-  }, [isPlaying, volume]);
+  }, [isPlaying, volume, muted]);
+
+  // If autoplay was blocked, start music on the first pointer/key interaction.
+  useEffect(() => {
+    if (isPlaying) return;
+
+    const unlock = () => {
+      if (unlockAttempted.current) return;
+      unlockAttempted.current = true;
+      setIsPlaying(true);
+    };
+
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+  }, [isPlaying]);
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -93,7 +145,29 @@ const LandingPage: React.FC = () => {
   }, []);
 
   const toggleMusic = () => {
-    setIsPlaying(!isPlaying);
+    setIsPlaying((playing) => !playing);
+  };
+
+  const toggleMute = () => {
+    setMuted((wasMuted) => {
+      if (wasMuted) {
+        const restore = volumeBeforeMute.current > 0.01 ? volumeBeforeMute.current : 0.5;
+        setVolume(restore);
+        return false;
+      }
+      volumeBeforeMute.current = volume > 0.01 ? volume : volumeBeforeMute.current;
+      return true;
+    });
+  };
+
+  const handleVolume = (next: number) => {
+    setVolume(next);
+    if (next > 0.001) {
+      setMuted(false);
+      volumeBeforeMute.current = next;
+    } else {
+      setMuted(true);
+    }
   };
 
   useEffect(() => {
@@ -129,46 +203,18 @@ const LandingPage: React.FC = () => {
   }, [matches, people, query]);
 
   return (
-    <div className="h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex flex-col">
-      {/* Above the full-bleed canvas so play/volume stay usable */}
-      <div className="relative z-20">
-        <Header
-          isPlaying={isPlaying}
-          volume={volume}
-          toggleMusic={toggleMusic}
-          setVolume={setVolume}
-        />
-      </div>
-      <div className="relative z-20 flex flex-wrap items-center gap-2 px-3 pt-2 pointer-events-auto">
-        <input
-          type="search"
-          value={query}
-          placeholder="Search the family..."
-          aria-label="Search the family"
-          className="input input-sm w-full max-w-xs bg-base-100/95"
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' && matches.length === 1) {
-              openPerson(matches[0]);
-            }
-          }}
-        />
-        <button type="button" className="btn btn-sm btn-primary" onClick={() => setShowPeople((open) => !open)}>
-          People
-        </button>
-        {loadError && <p className="text-sm font-semibold text-white drop-shadow">{loadError}</p>}
-      </div>
-      {/* 3D Scene */}
+    <div className="relative h-screen overflow-hidden bg-[#1a100c]">
+      {/* Full-bleed living room */}
       <div className="absolute inset-0 z-0">
-        <Canvas 
-          camera={{ position: DEFAULT_CAMERA_POSITION, fov: 48 }} 
+        <Canvas
+          camera={{ position: cameraBoot.position, fov: cameraBoot.fov }}
           shadows
-          gl={{ 
+          gl={{
             antialias: true,
             alpha: false,
-            powerPreference: "high-performance",
+            powerPreference: 'high-performance',
             stencil: false,
-            depth: true
+            depth: true,
           }}
           dpr={[1, 2]}
         >
@@ -186,6 +232,32 @@ const LandingPage: React.FC = () => {
         </Canvas>
       </div>
 
+      <LandingChrome
+        isPlaying={isPlaying}
+        volume={volume}
+        muted={muted}
+        toggleMusic={toggleMusic}
+        toggleMute={toggleMute}
+        setVolume={handleVolume}
+      />
+
+      <div className="pointer-events-none absolute left-0 top-14 z-20 w-full max-w-md sm:top-4">
+        <FamilyFinder
+          people={people}
+          query={query}
+          onQueryChange={setQuery}
+          onPick={openPerson}
+          onOpenPeople={() => setShowPeople((open) => !open)}
+          peopleOpen={showPeople}
+        />
+      </div>
+
+      {loadError && (
+        <p className="pointer-events-none absolute left-3 top-28 z-20 text-sm font-semibold text-[#f3ead7] drop-shadow sm:top-20">
+          {loadError}
+        </p>
+      )}
+
       <OrbitPad orbit={orbit} />
       {selected && <PresentPanel person={selected} onClose={closePerson} />}
       {showPeople && (
@@ -197,9 +269,10 @@ const LandingPage: React.FC = () => {
         />
       )}
 
-      {/* Custom animations */}
       <LandingStyles />
-      <Footer />
+      <div className="absolute inset-x-0 bottom-0 z-20">
+        <Footer />
+      </div>
     </div>
   );
 };

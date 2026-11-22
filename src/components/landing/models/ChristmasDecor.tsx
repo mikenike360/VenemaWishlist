@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { easing } from '../../../lib/materials';
 import { FitModel, villageModels } from './FitModel';
+import { MantelTitle } from './MantelTitle';
 
 function TwinkleBulb({
   position,
@@ -224,6 +225,7 @@ export const ChristmasDecor: React.FC = () => {
       {/* Mantel shelf — stockings hang from the front edge, not into the hearth */}
       <group position={[0, 1.78, -3.18]}>
         <MantelGarland width={1.85} />
+        <MantelTitle />
         <Stocking position={[-0.6, -0.02, 0.18]} color="#c41e2a" />
         <Stocking position={[-0.12, -0.02, 0.18]} color="#1f6b3a" cuff="#f0e6c8" />
         <Stocking position={[0.38, -0.02, 0.18]} color="#c41e2a" />

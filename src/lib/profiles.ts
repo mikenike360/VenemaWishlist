@@ -86,8 +86,9 @@ export const FLOOR_Y = 0.05;
 /** Half-ish box width — used when sliding a buried gift out of a stack. */
 export const PILE_BOX_W = BOX_W;
 /** Just outside the carved skirt — nest inside the canopy cavity. */
+/** Outside the trunk train loop (r≈0.38) so boxes don’t sit on the rails. */
 const TREE_KEEP_OUT = 0.58;
-/** Outer edge for initial placement (can sit slightly past the rug). */
+/** Outer edge for initial placement. */
 const PILE_MAX_R = 1.35;
 /** Horseshoe opens into the room (away from the back-right walls). */
 const OPEN_YAW = Math.atan2(-TREE_CENTER_X, -TREE_CENTER_Z);
@@ -96,7 +97,7 @@ const OPEN_SIN = Math.sin(OPEN_YAW);
 /** Radial step between rings — leave a clear gap between boxes. */
 const RING_STEP = BOX_W * 1.8;
 /** Bump when pile math changes so HMR cannot reuse a stale cache. */
-const PILE_LAYOUT_REV = 25;
+const PILE_LAYOUT_REV = 32;
 /** Minimum center distance between floor gifts (boxes are BOX_W square). */
 const FLOOR_MIN_GAP = BOX_W * 2.15;
 /**

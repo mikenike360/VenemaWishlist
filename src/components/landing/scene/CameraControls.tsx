@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import {
-  DEFAULT_CAMERA_POSITION,
+  homeCameraPosition,
   TREE_CENTER_X,
   TREE_CENTER_Z,
   TREE_LOOK_Y,
@@ -25,7 +25,6 @@ interface CameraControlsProps {
 }
 
 const TREE = new THREE.Vector3(TREE_CENTER_X, TREE_LOOK_Y, TREE_CENTER_Z);
-const HOME_CAMERA = new THREE.Vector3(...DEFAULT_CAMERA_POSITION);
 const YAW_SPEED = 1.15;
 const PITCH_SPEED = 0.7;
 /** Allow a bit more swing toward the fireplace (+X side of the tree). */
@@ -55,9 +54,20 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
   const releaseRef = useRef(onRelease);
   const goingHome = useRef(false);
   const lastHomeRequest = useRef(0);
+  const homeCamera = useRef(new THREE.Vector3(...homeCameraPosition()));
   const { gl } = useThree();
 
   releaseRef.current = onRelease;
+
+  useEffect(() => {
+    const syncHome = () => {
+      const next = homeCameraPosition();
+      homeCamera.current.set(next[0], next[1], next[2]);
+    };
+    syncHome();
+    window.addEventListener('resize', syncHome);
+    return () => window.removeEventListener('resize', syncHome);
+  }, []);
 
   useEffect(() => {
     if (homeRequest === lastHomeRequest.current) return;
@@ -153,10 +163,10 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
 
     if (goingHome.current) {
       current.target.lerp(TREE, 0.12);
-      current.object.position.lerp(HOME_CAMERA, 0.12);
+      current.object.position.lerp(homeCamera.current, 0.12);
       current.update();
       const atHome =
-        current.object.position.distanceToSquared(HOME_CAMERA) < 0.0025 &&
+        current.object.position.distanceToSquared(homeCamera.current) < 0.0025 &&
         current.target.distanceToSquared(TREE) < 0.0025;
       if (atHome) goingHome.current = false;
       return;
@@ -179,7 +189,7 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
       enablePan={false}
       enableRotate={true}
       minDistance={1.0}
-      maxDistance={5.2}
+      maxDistance={6.2}
       minPolarAngle={Math.PI / 4.2}
       maxPolarAngle={Math.PI / 2.02}
       minAzimuthAngle={MIN_AZIMUTH}

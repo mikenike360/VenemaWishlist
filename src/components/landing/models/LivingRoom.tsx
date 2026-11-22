@@ -59,7 +59,7 @@ function RoomRug({ position }: { position: [number, number, number] }) {
       </mesh>
       <mesh receiveShadow position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[r * 0.36, r * 0.42, 64]} />
-        <meshStandardMaterial color="#c9a227" roughness={0.8} />
+        <meshStandardMaterial color="#6b2a30" roughness={0.85} />
       </mesh>
     </group>
   );

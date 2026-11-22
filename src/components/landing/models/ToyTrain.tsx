@@ -2,21 +2,40 @@ import { useMemo, useRef, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { TREE_POSITION } from '../../../lib/roomLayout';
 import { villageModels } from './FitModel';
 
-/** Open floor just outside the rug, toward the tree from the nook. */
-const GROUP_POSITION: [number, number, number] = [2.08, 0, -1.12];
-const CAR_HEIGHT = 0.055;
+/**
+ * Tight loop around the trunk, inside the gift ring.
+ * Y sits on top of the tree rug (cylinder center 0.025, height 0.05).
+ */
+const GROUP_POSITION: [number, number, number] = [
+  TREE_POSITION[0],
+  0.058,
+  TREE_POSITION[2],
+];
+const CAR_HEIGHT = 0.06;
 const BRIGHTEN = 1.35;
-const LAPS_PER_SECOND = 0.045;
-/** Arc spacing between cars (radians on the oval). */
-const CAR_GAP = 0.9;
-const RX = 0.2;
-const RZ = 0.16;
-const GAUGE = 0.014;
-const RAIL_Y = 0.006;
-const RAIL_TUBE = 0.003;
-const TIE_SIZE: [number, number, number] = [0.034, 0.004, 0.01];
+const LAPS_PER_SECOND = 0.055;
+/** Circle radius — outside the trunk, inside the gift horseshoe. */
+const RX = 0.38;
+const RZ = 0.38;
+const GAUGE = 0.022;
+const RAIL_Y = 0.02;
+const RAIL_TUBE = 0.007;
+const TIE_SIZE: [number, number, number] = [0.056, 0.006, 0.016];
+/** Dark wood ring under the rails. */
+const BED_INNER = RX - 0.065;
+const BED_OUTER = RX + 0.065;
+const BED_Y = 0.004;
+/** Cars sit just above the rail tubes. */
+const CAR_Y = 0.028;
+/**
+ * Fitted X lengths at CAR_HEIGHT. Space centers by half+half + a small coupler
+ * so cars sit close without overlapping.
+ */
+const CAR_LENGTHS = [0.135, 0.164, 0.164] as const;
+const COUPLER_GAP = 0.02;
 /**
  * Quaternius trains are long on X. The nose points along -X in the GLB, so
  * align local -X with the ellipse tangent: R_y(θ)·(-1,0,0) = (-cos θ, 0, sin θ).
@@ -29,11 +48,17 @@ type CarSlot = {
   thetaOffset: number;
 };
 
-const CARS: CarSlot[] = [
-  { url: villageModels.trainLoco, thetaOffset: 0 },
-  { url: villageModels.trainWagon, thetaOffset: -CAR_GAP },
-  { url: villageModels.trainCarriage, thetaOffset: -CAR_GAP * 2 },
-];
+function buildCarSlots(): CarSlot[] {
+  const urls = [villageModels.trainLoco, villageModels.trainWagon, villageModels.trainCarriage];
+  const offsets = [0];
+  for (let i = 1; i < urls.length; i++) {
+    const arc = CAR_LENGTHS[i - 1] / 2 + CAR_LENGTHS[i] / 2 + COUPLER_GAP;
+    offsets.push(offsets[i - 1] - arc / RX);
+  }
+  return urls.map((url, i) => ({ url, thetaOffset: offsets[i] }));
+}
+
+const CARS = buildCarSlots();
 
 function fittedClone(source: THREE.Object3D, height: number, brighten: number) {
   const root = source.clone(true);
@@ -102,7 +127,7 @@ function buildRails() {
   }
 
   const ties: { position: [number, number, number]; yaw: number }[] = [];
-  const tieCount = 24;
+  const tieCount = 28;
   for (let i = 0; i < tieCount; i++) {
     const theta = (i / tieCount) * Math.PI * 2;
     const { x, z, tx, tz } = pointOnEllipse(theta, RX, RZ);
@@ -130,7 +155,7 @@ export function ToyTrain() {
   const wagonRef = useRef<THREE.Group>(null);
   const carriageRef = useRef<THREE.Group>(null);
   const refs = [locoRef, wagonRef, carriageRef];
-  const track = useMemo(() => buildRails(), []);
+  const track = useMemo(() => buildRails(), [RX, RZ, GAUGE, RAIL_TUBE]);
 
   useFrame(({ clock }) => {
     const spin = clock.elapsedTime * LAPS_PER_SECOND * Math.PI * 2;
@@ -139,22 +164,30 @@ export function ToyTrain() {
       if (!group) continue;
       const theta = spin + CARS[i].thetaOffset;
       const { x, z, tx, tz } = pointOnEllipse(theta, RX, RZ);
-      group.position.set(x, 0, z);
+      group.position.set(x, CAR_Y, z);
       group.rotation.y = FORWARD_FROM_TANGENT(tx, tz);
     }
   });
 
   return (
     <group position={GROUP_POSITION}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, BED_Y, 0]}>
+        <ringGeometry args={[BED_INNER, BED_OUTER, 64]} />
+        <meshBasicMaterial
+          color="#3a2418"
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
       {track.ties.map((tie, index) => (
-        <mesh key={`tie-${index}`} position={tie.position} rotation={[0, tie.yaw, 0]} receiveShadow>
+        <mesh key={`tie-${index}`} position={tie.position} rotation={[0, tie.yaw, 0]}>
           <boxGeometry args={TIE_SIZE} />
-          <meshStandardMaterial color="#5a3a22" roughness={0.9} />
+          <meshBasicMaterial color="#5c3a22" />
         </mesh>
       ))}
       {track.rails.map((geometry, index) => (
-        <mesh key={`rail-${index}`} geometry={geometry} castShadow receiveShadow>
-          <meshStandardMaterial color="#5c5c5c" metalness={0.55} roughness={0.4} />
+        <mesh key={`rail-${index}`} geometry={geometry}>
+          <meshBasicMaterial color="#8a8070" />
         </mesh>
       ))}
       <TrainCar url={CARS[0].url} groupRef={locoRef} />
