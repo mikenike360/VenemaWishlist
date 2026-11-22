@@ -12,12 +12,21 @@ interface SceneProps {
   people: PresentPerson[];
   query: string;
   focus: [number, number, number] | null;
+  homeRequest?: number;
   onSelect: (person: PresentPerson) => void;
   onReleaseCamera: () => void;
   orbit: React.MutableRefObject<OrbitHold>;
 }
 
-export const Scene: React.FC<SceneProps> = ({ people, query, focus, onSelect, onReleaseCamera, orbit }) => {
+export const Scene: React.FC<SceneProps> = ({
+  people,
+  query,
+  focus,
+  homeRequest = 0,
+  onSelect,
+  onReleaseCamera,
+  orbit,
+}) => {
   const needle = query.trim().toLowerCase();
   const searching = needle.length > 0;
   const pileCount = people.length;
@@ -70,7 +79,12 @@ export const Scene: React.FC<SceneProps> = ({ people, query, focus, onSelect, on
         );
       })}
 
-      <CameraControls focus={focus} onRelease={onReleaseCamera} orbit={orbit} />
+      <CameraControls
+        focus={focus}
+        homeRequest={homeRequest}
+        onRelease={onReleaseCamera}
+        orbit={orbit}
+      />
     </>
   );
 };

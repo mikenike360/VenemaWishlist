@@ -2,7 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { TREE_CENTER_X, TREE_CENTER_Z, TREE_LOOK_Y } from '../../../lib/roomLayout';
+import {
+  DEFAULT_CAMERA_POSITION,
+  TREE_CENTER_X,
+  TREE_CENTER_Z,
+  TREE_LOOK_Y,
+} from '../../../lib/roomLayout';
 
 export interface OrbitHold {
   left: boolean;
@@ -13,11 +18,14 @@ export interface OrbitHold {
 
 interface CameraControlsProps {
   focus: [number, number, number] | null;
+  /** Bump to ease the camera back to the default wide shot. */
+  homeRequest?: number;
   onRelease: () => void;
   orbit: React.MutableRefObject<OrbitHold>;
 }
 
 const TREE = new THREE.Vector3(TREE_CENTER_X, TREE_LOOK_Y, TREE_CENTER_Z);
+const HOME_CAMERA = new THREE.Vector3(...DEFAULT_CAMERA_POSITION);
 const YAW_SPEED = 1.15;
 const PITCH_SPEED = 0.7;
 /** Allow a bit more swing toward the fireplace (+X side of the tree). */
@@ -32,7 +40,12 @@ function isTypingTarget(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable;
 }
 
-export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease, orbit }) => {
+export const CameraControls: React.FC<CameraControlsProps> = ({
+  focus,
+  homeRequest = 0,
+  onRelease,
+  orbit,
+}) => {
   const controls = useRef<React.ElementRef<typeof OrbitControls>>(null);
   const keys = useRef<OrbitHold>({ left: false, right: false, up: false, down: false });
   const focusVec = useRef(new THREE.Vector3());
@@ -40,9 +53,19 @@ export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease
   const offset = useRef(new THREE.Vector3());
   const spherical = useRef(new THREE.Spherical());
   const releaseRef = useRef(onRelease);
+  const goingHome = useRef(false);
+  const lastHomeRequest = useRef(0);
   const { gl } = useThree();
 
   releaseRef.current = onRelease;
+
+  useEffect(() => {
+    if (homeRequest === lastHomeRequest.current) return;
+    lastHomeRequest.current = homeRequest;
+    if (homeRequest <= 0) return;
+    goingHome.current = true;
+    releaseRef.current();
+  }, [homeRequest]);
 
   useEffect(() => {
     const held = keys.current;
@@ -100,6 +123,7 @@ export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease
     const pitch = (buttons.up || keys.current.up ? 1 : 0) - (buttons.down || keys.current.down ? 1 : 0);
 
     if (yaw !== 0 || pitch !== 0) {
+      goingHome.current = false;
       if (focus) releaseRef.current();
       const step = 1 - Math.exp(-delta * 2.5);
       if (current.target.distanceToSquared(TREE) > 0.04) {
@@ -124,6 +148,17 @@ export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease
       current.object.position.setFromSpherical(spherical.current).add(current.target);
       current.object.lookAt(current.target);
       current.update();
+      return;
+    }
+
+    if (goingHome.current) {
+      current.target.lerp(TREE, 0.12);
+      current.object.position.lerp(HOME_CAMERA, 0.12);
+      current.update();
+      const atHome =
+        current.object.position.distanceToSquared(HOME_CAMERA) < 0.0025 &&
+        current.target.distanceToSquared(TREE) < 0.0025;
+      if (atHome) goingHome.current = false;
       return;
     }
 
@@ -159,7 +194,10 @@ export const CameraControls: React.FC<CameraControlsProps> = ({ focus, onRelease
         MIDDLE: THREE.MOUSE.ROTATE,
         RIGHT: THREE.MOUSE.ROTATE,
       }}
-      onStart={() => releaseRef.current()}
+      onStart={() => {
+        goingHome.current = false;
+        releaseRef.current();
+      }}
     />
   );
 };

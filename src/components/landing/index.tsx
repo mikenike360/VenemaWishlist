@@ -23,6 +23,7 @@ const LandingPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<PresentPerson | null>(null);
   const [focus, setFocus] = useState<[number, number, number] | null>(null);
+  const [homeRequest, setHomeRequest] = useState(0);
   const [showPeople, setShowPeople] = useState(false);
   const orbit = useRef<OrbitHold>({ left: false, right: false, up: false, down: false });
 
@@ -32,15 +33,18 @@ const LandingPage: React.FC = () => {
     return people.filter((person) => person.name.toLowerCase().includes(needle));
   }, [people, query]);
 
-  const focusOn = (person: PresentPerson) => {
-    const index = people.findIndex((item) => item.id === person.id);
-    if (index >= 0) setFocus(pilePosition(index, people.length));
+  const openPerson = (person: PresentPerson) => {
+    // Open the card without yanking the camera — search still focuses to find gifts.
+    setSelected(person);
+    setFocus(null);
+    setHomeRequest((n) => n + 1);
+    setShowPeople(false);
   };
 
-  const openPerson = (person: PresentPerson) => {
-    setSelected(person);
-    focusOn(person);
-    setShowPeople(false);
+  const closePerson = () => {
+    setSelected(null);
+    setFocus(null);
+    setHomeRequest((n) => n + 1);
   };
 
   // Initialize audio element
@@ -173,6 +177,7 @@ const LandingPage: React.FC = () => {
               people={people}
               query={query}
               focus={focus}
+              homeRequest={homeRequest}
               onSelect={openPerson}
               onReleaseCamera={() => setFocus(null)}
               orbit={orbit}
@@ -182,7 +187,7 @@ const LandingPage: React.FC = () => {
       </div>
 
       <OrbitPad orbit={orbit} />
-      {selected && <PresentPanel person={selected} onClose={() => setSelected(null)} />}
+      {selected && <PresentPanel person={selected} onClose={closePerson} />}
       {showPeople && (
         <PeopleDrawer
           people={people}

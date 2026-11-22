@@ -85,7 +85,8 @@ function fittedClone(
       const meshCenter = meshBox.getCenter(new THREE.Vector3());
       const mat = Array.isArray(child.material) ? child.material[0] : child.material;
       const matName = mat && 'name' in mat ? String(mat.name) : '';
-      // Keep foliage + trunk + star; hide baked gift meshes and colored shells.
+      // Keep foliage + trunk + star. Hide floor gifts and baked bauble shells —
+      // after the gift-cave carve those shells hang in empty air between tiers.
       const isFoliageOrTrunk =
         matName === 'mat10' || matName === 'mat11' || matName === 'mat20';
       const isStar = matName === 'mat12' && meshCenter.y > 1.5;
@@ -169,7 +170,7 @@ export function FitModel({
   const group = useRef<THREE.Group>(null);
   const { actions, names } = useAnimations(gltf.animations, group);
   // clutterRev bumps when the hide heuristic changes so HMR remakes the clone.
-  const clutterRev = hideGroundClutter ? 15 : 0;
+  const clutterRev = hideGroundClutter ? 18 : 0;
   const object = useMemo(
     () => fittedClone(gltf.scene, height, brighten, fit, polygonOffset, hideGroundClutter),
     [gltf.scene, height, brighten, fit, polygonOffset, hideGroundClutter, clutterRev],
