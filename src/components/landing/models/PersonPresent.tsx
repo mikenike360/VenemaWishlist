@@ -77,6 +77,8 @@ export const PersonPresent: React.FC<PersonPresentProps> = ({
   const rootRef = useRef<THREE.Group>(null);
   const giftRef = useRef<THREE.Group>(null);
   const clearTouchHover = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** True when this touch already opened the card — skip the follow-up click. */
+  const openedFromTouch = useRef(false);
   const [hovered, setHovered] = useState(false);
   const giftColor = useMemo(() => giftColors[colorIndex(person.name, giftColors.length)], [person.name]);
   const ribbonColor = useMemo(() => ribbonColors[colorIndex(person.name + 'ribbon', ribbonColors.length)], [person.name]);
@@ -141,25 +143,42 @@ export const PersonPresent: React.FC<PersonPresentProps> = ({
     }
   });
 
+  const openCard = () => {
+    claimHover();
+    onSelect(person);
+    // Keep the peek visible while the card opens, then settle.
+    releaseHover(800);
+  };
+
   return (
     <group
       ref={rootRef}
       position={position}
       onClick={(event) => {
         event.stopPropagation();
-        claimHover();
-        onSelect(person);
-        // Keep the peek visible while the card opens, then settle.
-        releaseHover(800);
+        // Touch already opened on pointerdown — the lift mid-gesture often
+        // makes this click miss, which felt like needing a second tap.
+        if (openedFromTouch.current) {
+          openedFromTouch.current = false;
+          return;
+        }
+        openCard();
       }}
       onPointerDown={(event) => {
         // Only the frontmost hit may claim hover — stops stacked gifts fighting.
         if (event.intersections[0]?.eventObject !== event.eventObject) return;
         event.stopPropagation();
+        // R3F stopPropagation does not reach OrbitControls (same canvas listener).
+        event.nativeEvent.stopImmediatePropagation();
         claimHover();
         if (event.pointerType === 'mouse') {
           document.body.style.cursor = 'pointer';
+          return;
         }
+        // Touch/pen: open on press. Waiting for click fails when the gift
+        // lifts/scales under the finger before the click raycast.
+        openedFromTouch.current = true;
+        openCard();
       }}
       onPointerOver={(event) => {
         if (event.pointerType === 'touch' || event.pointerType === 'pen') return;

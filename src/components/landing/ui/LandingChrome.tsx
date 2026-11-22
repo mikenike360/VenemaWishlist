@@ -72,7 +72,11 @@ export function LandingChrome({
         <p className="font-semibold tabular-nums tracking-wide text-[#f3ead7] sm:text-lg">
           <span className="text-[#e2c08a]">{timeLeft.days}</span>
           <span className="ml-1.5 text-sm font-medium text-[#f3ead7]/90 sm:text-base">
-            {timeLeft.days === 1 ? 'day' : 'days'} until Christmas
+            {timeLeft.days === 1 ? 'day' : 'days'}
+          </span>
+          <span className="ml-1.5 text-[#e2c08a]">{timeLeft.hours}</span>
+          <span className="ml-1.5 text-sm font-medium text-[#f3ead7]/90 sm:text-base">
+            {timeLeft.hours === 1 ? 'hour' : 'hours'} until Christmas
           </span>
         </p>
       </div>
