@@ -68,14 +68,16 @@ export function LandingChrome({
       {/* Spacer so countdown stays visually centered beside the finder */}
       <div className="hidden w-48 shrink-0 sm:block" aria-hidden="true" />
 
-      <div className={`pointer-events-none mx-auto flex max-w-md flex-col items-center gap-0.5 px-3 py-2 ${panel}`}>
-        <p className="font-semibold tabular-nums tracking-wide text-[#f3ead7] sm:text-lg">
+      <div
+        className={`pointer-events-none mx-auto flex max-w-[min(100%,20rem)] flex-col items-center gap-0.5 px-2 py-1 sm:max-w-md sm:px-3 sm:py-2 ${panel}`}
+      >
+        <p className="text-center text-[11px] font-semibold leading-tight tabular-nums tracking-wide text-[#f3ead7] sm:text-base sm:leading-normal lg:text-lg">
           <span className="text-[#e2c08a]">{timeLeft.days}</span>
-          <span className="ml-1.5 text-sm font-medium text-[#f3ead7]/90 sm:text-base">
+          <span className="ml-1 text-[10px] font-medium text-[#f3ead7]/90 sm:ml-1.5 sm:text-sm lg:text-base">
             {timeLeft.days === 1 ? 'day' : 'days'}
           </span>
-          <span className="ml-1.5 text-[#e2c08a]">{timeLeft.hours}</span>
-          <span className="ml-1.5 text-sm font-medium text-[#f3ead7]/90 sm:text-base">
+          <span className="ml-1 text-[#e2c08a] sm:ml-1.5">{timeLeft.hours}</span>
+          <span className="ml-1 text-[10px] font-medium text-[#f3ead7]/90 sm:ml-1.5 sm:text-sm lg:text-base">
             {timeLeft.hours === 1 ? 'hour' : 'hours'} until Christmas
           </span>
         </p>
